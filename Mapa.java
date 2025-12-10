@@ -1,5 +1,6 @@
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Random;
 
 public class Mapa {
     protected char[][] grid = new char[13][13];
@@ -45,6 +46,31 @@ public class Mapa {
                 System.out.print(grid[i][j]);
             }
             System.out.println();
+        }
+    }
+
+    public void spawnaPersonagens () {
+        Random random = new Random();
+
+        int linhaPlayer = grid.length - 1;
+        int colunaPlayer;
+
+        do {
+            colunaPlayer = random.nextInt(grid[0].length);
+        } while (grid[linhaPlayer][colunaPlayer] != '_');
+
+        grid[linhaPlayer][colunaPlayer] = 'P';
+
+        int linhaInimigo = 0;
+
+        for (int i = 0; i < 4; i++) {
+            int colunaInimigo;
+
+            do {
+                colunaInimigo = random.nextInt(grid[0].length);
+            } while (grid[linhaInimigo][colunaInimigo] != '_');
+
+            grid[linhaInimigo][colunaInimigo] = 'I';
         }
     }
 }
