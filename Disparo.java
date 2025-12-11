@@ -1,3 +1,7 @@
 public class Disparo {
-    public Direcao direcaoDisparo;
+    Direcao direcaoDisparo;
+
+    public Disparo(Direcao direcao){
+        this.direcaoDisparo = direcao;
+    }
 }

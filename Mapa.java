@@ -62,7 +62,7 @@ public class Mapa {
         for (int i = 0; i < 13; i++) {
             for (int j = 0; j < 13; j++) {
                 if (grid[i][j] == 'I') {
-                    Direcao d = Direcao.random();
+                    Direcao d = Direcao.randomica();
 
                     int y = 0;
                     int x = 0;
@@ -165,7 +165,7 @@ public class Mapa {
     }
 
     public boolean fimMapa() {
-
+        return true;
     }
     
     public void disparar() {
