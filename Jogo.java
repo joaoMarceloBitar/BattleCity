@@ -33,6 +33,8 @@ public class Jogo {
         mapa = new Mapa("mapa" + numMapa + ".txt");
 
         mapa.spawnaPersonagens();
+
+        mapa.executar();
     }
 
     private void desenhar() {
@@ -49,6 +51,7 @@ public class Jogo {
         System.out.println("3 - Sair");
 
         opcao = scan.nextInt();
+        scan.close();
         return opcao;
     }
 }
