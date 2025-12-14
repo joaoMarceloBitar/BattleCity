@@ -61,9 +61,11 @@ public class Jogo {
 
     public void gameLoop(Jogador player, Inimigo inimigo1, Inimigo inimigo2, Entidade base, Mapa mapa) {
         
-        mapa.resetarMapa();
-
+        
         while (base.vivo) {
+            
+            mapa.resetarMapa();
+
             for (int j = 0; j < 13; j++) {
                 for (int i = 0; i < 13; i++) {
                     if (i == player.verti && j == player.horiz) {
@@ -92,6 +94,7 @@ public class Jogo {
         if(comando == Direcao.TIRO){
             //dar tiro
         }else{
+            
             player.andar(comando);
         }
 

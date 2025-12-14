@@ -62,18 +62,6 @@ public class Mapa {
         }
     }
 
-    public void colisoes() {
-
-    }
-
-    public boolean fimMapa() {
-        return true;
-    }
-
-    public void disparar() {
-
-    }
-
     public void spawnaPersonagens() {
         Random random = new Random();
 
@@ -96,15 +84,6 @@ public class Mapa {
             } while (grid[linhaInimigo][colunaInimigo] != '_');
 
             grid[linhaInimigo][colunaInimigo] = 'I';
-        }
-    }
-
-    public void executar() {
-        boolean rodando = true;
-
-        while (rodando) {
-            colisoes();
-            rodando = fimMapa();
         }
     }
 

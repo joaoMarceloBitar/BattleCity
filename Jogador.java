@@ -14,6 +14,7 @@ public class Jogador extends Personagem {
                 return;
             }
             this.verti--;
+            ultimaDirecao = Direcao.CIMA;
         }
         if (direcao == Direcao.BAIXO) {
             if ((this.verti+1) > 13) {
@@ -21,6 +22,7 @@ public class Jogador extends Personagem {
                 return;
             }
             this.verti++;
+            ultimaDirecao = Direcao.BAIXO;
         }
         if (direcao == Direcao.DIREITA) {
             if ((this.horiz+1) > 13) {
@@ -28,6 +30,7 @@ public class Jogador extends Personagem {
                 return;
             }
             this.horiz++;
+            ultimaDirecao = Direcao.DIREITA;
         }
         if (direcao == Direcao.ESQUERDA) {
             if ((this.horiz-1) < 0) {
@@ -35,6 +38,7 @@ public class Jogador extends Personagem {
                 return;
             }
             this.horiz--;
+            ultimaDirecao = Direcao.ESQUERDA;
         }
     }
 
