@@ -89,7 +89,7 @@ public class Jogo {
             
         }
     }
-//aaaaa
+//aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     public void acaoPlayer(Direcao comando, Jogador player, Inimigo inimigo1, Inimigo inimigo2){
         if(comando == Direcao.TIRO){
             //dar tiro
