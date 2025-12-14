@@ -1,6 +1,7 @@
 import java.util.Scanner;
 
 public class Jogo {
+    private static final Scanner scan = new Scanner(System.in);
     private Mapa mapa;
 
     public static void main(String[] args) {
@@ -20,7 +21,7 @@ public class Jogo {
                 case 3:
                     System.exit(0);
             }
-        } while (opcao < 1 && opcao > 3);
+        } while (opcao >= 1 && opcao <= 3);
     }
 
     public void iniciar() {
@@ -36,19 +37,18 @@ public class Jogo {
         Entidade base = new Entidade(7, 13);
 
         gameLoop(player, inimigo1, inimigo2, base, mapa);
-
-        mapa.spawnaPersonagens();
-
-        mapa.executar();
     }
 
     private void desenhar() {
+        if (mapa == null) {
+            System.out.println("Nenhum mapa carregado. Inicie o jogo primeiro.");
+            return;
+        }
         mapa.imprimeMapa();
     }
 
     public static int menu() {
         int opcao;
-        Scanner scan = new Scanner(System.in);
 
         System.out.println("======= MENU =======");
         System.out.println("1 - Jogar");
@@ -56,53 +56,78 @@ public class Jogo {
         System.out.println("3 - Sair");
 
         opcao = scan.nextInt();
-        scan.close();
         return opcao;
     }
 
     public void gameLoop(Jogador player, Inimigo inimigo1, Inimigo inimigo2, Entidade base, Mapa mapa) {
-        while (base.vivo = true) {
-            //metodo que atualiza o mapa com a loc dos tanqe
+        
+        mapa.resetarMapa();
+
+        while (base.vivo) {
+            for (int j = 0; j < 13; j++) {
+                for (int i = 0; i < 13; i++) {
+                    if (i == player.verti && j == player.horiz) {
+                        mapa.grid[i][j] = 'P';
+                    } else if ((i == inimigo1.verti && j == inimigo1.horiz) ||
+                            (i == inimigo2.verti && j == inimigo2.horiz)) {
+                        mapa.grid[i][j] = 'I';
+                    }
+                }
+            }
+                        
             mapa.imprimeMapa();
+            
+            System.out.println("---CONTROLES---");
+            System.out.println("| W: cima     |\n| A: esquerda |\n| S: baixo    |\n| D: direita  |");
+            System.out.println("| Q: atirar   |");
+            System.out.println("---------------");
 
             Direcao comando = lerEntrada();
-            if(comando==Direcao.TIRO){
-                //instancia disparo
-            }
+            acaoPlayer(comando, player, inimigo1, inimigo2);
+            
         }
+    }
+
+    public void acaoPlayer(Direcao comando, Jogador player, Inimigo inimigo1, Inimigo inimigo2){
+        if(comando == Direcao.TIRO){
+            //dar tiro
+        }else{
+            player.andar(comando);
+        }
+
     }
 
     public Direcao lerEntrada() {
         char c;
-        Direcao comando=null;
-        Scanner scan = new Scanner(System.in);
+        Direcao comando = null;
 
         String entrada = scan.next();
+
         c = entrada.charAt(0);
         c = Character.toUpperCase(c);
-        System.out.println("---CONTROLES---");
-        System.out.println("| W: cima     |\n| A: esquerda |\n| S: baixo    |\n| D: direita  |");
-        System.out.println("| Q: atirar   |");
-        System.out.println("---------------");
-        scan.close();
-        
+
         switch (c) {
             case 'W':
                 comando = Direcao.CIMA;
+                break;
             case 'S':
                 comando = Direcao.BAIXO;
+                break;
             case 'A':
                 comando = Direcao.ESQUERDA;
+                break;
             case 'D':
                 comando = Direcao.DIREITA;
+                break;
             case 'Q':
                 comando = Direcao.TIRO;
+                break;
             case 'X':
                 System.exit(0);
-                return null;
+                break;
             default:
                 System.out.println("entrada inválida\n");
-                lerEntrada();
+                return lerEntrada();
 
         }
         return comando;

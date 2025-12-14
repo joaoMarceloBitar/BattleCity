@@ -4,10 +4,14 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Mapa {
-    protected char[][] grid = new char[13][13];
+    private static final int TAM = 13;
+
+    protected char[][] mapaBase = new char[TAM][TAM];
+    protected char[][] grid = new char[TAM][TAM];
 
     public Mapa(String caminhoArquivo) {
         carregaMapa(caminhoArquivo);
+        resetarMapa();
     }
 
     public void carregaMapa(String caminhoArquivo) {
@@ -24,7 +28,7 @@ public class Mapa {
                 if (ch == '\n' || ch == '\r')
                     continue;
 
-                grid[linha][coluna] = ch;
+                mapaBase[linha][coluna] = ch;
                 coluna++;
 
                 if (coluna == 13) {
@@ -41,6 +45,14 @@ public class Mapa {
         }
     }
 
+    public void resetarMapa() {
+        for (int i = 0; i < TAM; i++) {
+            for (int j = 0; j < TAM; j++) {
+                grid[i][j] = mapaBase[i][j];
+            }
+        }
+    }
+
     public void imprimeMapa() {
         for (int i = 0; i < 13; i++) {
             for (int j = 0; j < 13; j++) {
@@ -50,116 +62,6 @@ public class Mapa {
         }
     }
 
-    public void atualizarInimigos() {
-        char[][] novoGrid = new char[13][13];
-
-        for (int i = 0; i < 13; i++) {
-            for (int j = 0; j < 13; j++) {
-                novoGrid[i][j] = grid[i][j];
-            }
-        }
-
-        for (int i = 0; i < 13; i++) {
-            for (int j = 0; j < 13; j++) {
-                if (grid[i][j] == 'I') {
-                    Direcao d = Direcao.randomica();
-
-                    int y = 0;
-                    int x = 0;
-
-                    switch (d) {
-                        case CIMA:
-                            y = -1;
-                            break;
-                        case BAIXO:
-                            y = 1;
-                            break;
-                        case ESQUERDA:
-                            x = -1;
-                            break;
-                        case DIREITA:
-                            x = 1;
-                            break;
-                    }
-
-                    int novoI = i + y;
-                    int novoJ = j + x;
-
-                    if (novoI < 0 || novoI >= 13 || novoJ < 0 || novoJ >= 13) {
-                        continue;
-                    }
-
-                    if (grid[novoI][novoJ] == '_') {
-                        novoGrid[novoI][novoJ] = 'I';
-                        novoGrid[i][j] = '_';
-                    }
-                }
-            }
-        }
-        grid = novoGrid;
-    }
-
-    public void atualizarJogador(char c) {
-        int y = 0, x = 0;
-        int i = 0, j = 0;
-
-        switch (c) {
-            case 'w':
-                y = -1;
-                break;
-            case 's':
-                y = 1;
-                break;
-            case 'a':
-                x = -1;
-                break;
-            case 'd':
-                x = 1;                
-                break;
-        }
-
-        for (i = 0; i < 13; i++) {
-            for (j = 0; j < 13; j++) {
-                if (grid[i][j] == 'J') {
-                    break;
-                }
-            }
-        }
-
-        int novoI = i + y;
-        int novoJ = j + x;
-
-        if (novoI < 0 || novoI >= 13 || novoJ < 0 || novoJ >= 13) {
-            return;
-        }
-
-        if (grid[novoI][novoJ] == '_') {
-                grid[novoI][novoJ] = 'J';
-                grid[i][j] = '_';
-        }
-    }
-
-    public void lerEntrada() {
-        char c;
-        Scanner scan = new Scanner (System.in);
-
-        String entrada = scan.next();
-        c = entrada.charAt(0);
-
-        if (c == 'w' || c == 's' || c == 'a' || c == 'd') {
-            atualizarJogador(c);
-        } else if (c == 'q') {
-            disparar();
-        } else if (c == 'x') {
-            System.exit(0);
-        } else {
-            System.out.println("entrada inválida\n");
-            scan.close();
-            return;
-        }
-        scan.close();
-    }
-
     public void colisoes() {
 
     }
@@ -167,7 +69,7 @@ public class Mapa {
     public boolean fimMapa() {
         return true;
     }
-    
+
     public void disparar() {
 
     }
@@ -201,11 +103,49 @@ public class Mapa {
         boolean rodando = true;
 
         while (rodando) {
-            imprimeMapa();
-            atualizarInimigos();
-            lerEntrada();
             colisoes();
             rodando = fimMapa();
         }
     }
+
+    public void atualizarJogador(char c) {
+        int y = 0, x = 0;
+        int i = 0, j = 0;
+
+        switch (c) {
+            case 'w':
+                y = -1;
+                break;
+            case 's':
+                y = 1;
+                break;
+            case 'a':
+                x = -1;
+                break;
+            case 'd':
+                x = 1;
+                break;
+        }
+
+        for (i = 0; i < 13; i++) {
+            for (j = 0; j < 13; j++) {
+                if (grid[i][j] == 'J') {
+                    break;
+                }
+            }
+        }
+
+        int novoI = i + y;
+        int novoJ = j + x;
+
+        if (novoI < 0 || novoI >= 13 || novoJ < 0 || novoJ >= 13) {
+            return;
+        }
+
+        if (grid[novoI][novoJ] == '_') {
+            grid[novoI][novoJ] = 'J';
+            grid[i][j] = '_';
+        }
+    }
+
 }
