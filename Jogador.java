@@ -49,4 +49,10 @@ public class Jogador extends Personagem {
     public boolean podeQuebrar() {
         return false;
     }
+
+    @Override
+    public char getChar() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getChar'");
+    }
 }

@@ -2,7 +2,7 @@ public abstract class Personagem extends Entidade {
     protected Direcao ultimaDirecao;
 
     public Personagem(int horiz, int verti, Direcao direcao) {
-        super(horiz, verti);
+        super(horiz, verti, true);
         this.ultimaDirecao = direcao;
     }
 

@@ -8,4 +8,10 @@ public class Inimigo extends Personagem {
     }
 
     public Direcao direcaoInimigo;
+
+    @Override
+    public char getChar() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getChar'");
+    }
 }
