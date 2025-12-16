@@ -64,6 +64,7 @@ public class Mapa {
     }
 
     public Base getBase() {
+        Base base = new Base(6, 12);
         return base;
     }
 

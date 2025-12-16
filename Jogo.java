@@ -38,7 +38,7 @@ public class Jogo {
         Jogador player = geraJogador();
         Inimigo inimigo1 = geraInimigo();
         Inimigo inimigo2 = geraInimigo();
-        Base base = mapa.getBase();
+        Base base = new Base(7, 13);
 
         entidades.add(player);
         entidades.add(inimigo1);
