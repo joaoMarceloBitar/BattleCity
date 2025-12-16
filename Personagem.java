@@ -10,8 +10,8 @@ public abstract class Personagem extends Entidade {
         this.ultimaDirecao = d;
     }
 
-    public Disparo disparar() {
-        return new Disparo(ultimaDirecao);
+    public Disparo disparar(Direcao ultimaDirecao, int x, int y) {
+        return new Disparo(ultimaDirecao,x,y);
     }
 
     public Direcao getUltimaDirecao() {

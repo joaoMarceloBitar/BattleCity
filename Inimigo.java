@@ -11,7 +11,6 @@ public class Inimigo extends Personagem {
 
     @Override
     public char getChar() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getChar'");
+        return 'I';
     }
 }

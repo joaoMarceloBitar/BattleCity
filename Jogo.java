@@ -5,7 +5,9 @@ import java.util.Scanner;
 public class Jogo {
     private static final Scanner scan = new Scanner(System.in);
     private List<Entidade> entidades = new ArrayList<>();
+    private List<Disparo> disparos = new ArrayList<>();
     private Mapa mapa;
+    private int pontos = 0;
 
     public static void main(String[] args) {
         Jogo jogo = new Jogo();
@@ -69,6 +71,7 @@ public class Jogo {
     }
 
     public void gameLoop(Jogador player, Inimigo inimigo1, Inimigo inimigo2, Entidade base, Mapa mapa) {
+
         geraBlocos(mapa);
 
         while (base.vivo) {
@@ -77,17 +80,25 @@ public class Jogo {
 
             for (int j = 0; j < 13; j++) {
                 for (int i = 0; i < 13; i++) {
+                    for (int k = 0; k < disparos.size(); k++) {
+                        Disparo tiro = disparos.get(k);
+                        if( i== tiro.verti && j==tiro.horiz){
+                            mapa.grid[i][j] = 'O';
+                        }
+                    }
                     if (i == player.verti && j == player.horiz) {
-                        mapa.grid[i][j] = 'P';
+                        mapa.grid[i][j] = player.getChar();
                     } else if ((i == inimigo1.verti && j == inimigo1.horiz) ||
                             (i == inimigo2.verti && j == inimigo2.horiz)) {
-                        mapa.grid[i][j] = 'I';
+                        mapa.grid[i][j] = inimigo1.getChar();
                     }
                 }
             }
 
             mapa.imprimeMapa();
-
+            
+            moveDisparos();
+            
             System.out.println("---CONTROLES---");
             System.out.println("| W: cima     |\n| A: esquerda |\n| S: baixo    |\n| D: direita  |");
             System.out.println("| Q: atirar   |");
@@ -95,18 +106,26 @@ public class Jogo {
 
             Direcao comando = lerEntrada();
             acaoPlayer(comando, player, inimigo1, inimigo2);
-
+            
         }
     }
 
     public void acaoPlayer(Direcao comando, Jogador player, Inimigo inimigo1, Inimigo inimigo2) {
+
         if (comando == Direcao.TIRO) {
-            // dar tiro
+            int novox = player.proximoX(player.ultimaDirecao);
+            int novoy = player.proximoY(player.ultimaDirecao);
+
+            Disparo tiro = player.atirar(player.ultimaDirecao);
+            disparos.add(tiro);
         } else {
+            int novoX = player.proximoX(comando);
+            int novoY = player.proximoY(comando);
 
-            player.andar(comando);
+            if (podeMover(novoX, novoY)) {
+                player.andar(comando);
+            }
         }
-
     }
 
     public Direcao lerEntrada() {
@@ -163,12 +182,31 @@ public class Jogo {
         for (int j = 0; j < 13; j++) {
             for (int i = 0; i < 13; i++) {
                 if (mapa.grid[i][j] == '#') {
-                    entidades.add(new BlocoAco(i, j));
+                    entidades.add(new BlocoAco(j, i));
                 } else if (mapa.grid[i][j] == '%') {
-                    entidades.add(new BlocoTijolo(i, j));
+                    entidades.add(new BlocoTijolo(j, i));
                 }
             }
         }
 
+    }
+
+    public boolean podeMover(int x, int y) {
+        if (x < 0 || x > 13 || y < 0 || y > 13)
+            return false;
+
+        for (Entidade e : entidades) {
+            if (e.getX() == x && e.getY() == y) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void moveDisparos(){
+        for(int i=0; i<disparos.size(); i++){
+            Disparo tiro = disparos.get(i);
+            tiro.move();
+        }
     }
 }

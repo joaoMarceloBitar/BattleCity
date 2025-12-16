@@ -9,50 +9,55 @@ public class Jogador extends Personagem {
 
     public void andar(Direcao direcao) {
         if (direcao == Direcao.CIMA) {
-            if ((this.verti-1) < 0) {
-                System.out.println("Não é possivel avançar");
-                return;
-            }
             this.verti--;
             ultimaDirecao = Direcao.CIMA;
         }
         if (direcao == Direcao.BAIXO) {
-            if ((this.verti+1) > 13) {
-                System.out.println("Não é possivel avançar");
-                return;
-            }
             this.verti++;
             ultimaDirecao = Direcao.BAIXO;
         }
         if (direcao == Direcao.DIREITA) {
-            if ((this.horiz+1) > 13) {
-                System.out.println("Não é possivel avançar");
-                return;
-            }
             this.horiz++;
             ultimaDirecao = Direcao.DIREITA;
         }
         if (direcao == Direcao.ESQUERDA) {
-            if ((this.horiz-1) < 0) {
-                System.out.println("Não é possivel avançar");
-                return;
-            }
             this.horiz--;
             ultimaDirecao = Direcao.ESQUERDA;
         }
     }
 
-    public boolean podeAndar() {
-        return true;
+    public int proximoX(Direcao d) {
+        if (d == Direcao.DIREITA)
+            return horiz + 1;
+        if (d == Direcao.ESQUERDA)
+            return horiz - 1;
+        return horiz;
+    }
+
+    public int proximoY(Direcao d) {
+        if (d == Direcao.CIMA)
+            return verti - 1;
+        if (d == Direcao.BAIXO)
+            return verti + 1;
+
+        return verti;
     }
 
     public boolean podeQuebrar() {
         return false;
     }
 
+    public Disparo atirar(Direcao direcaoTiro){
+
+        int xTiro = this.proximoX(direcaoTiro);
+        int yTiro = this.proximoY(direcaoTiro);
+
+        Disparo tiro = new Disparo(ultimaDirecao,xTiro,yTiro);
+        return tiro;
+    }
+
     @Override
     public char getChar() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getChar'");
+        return 'P';
     }
 }
