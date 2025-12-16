@@ -69,45 +69,43 @@ public class Jogo {
     }
 
     public void gameLoop(Jogador player, Inimigo inimigo1, Inimigo inimigo2, Entidade base, Mapa mapa) {
-        geraBlocos(mapa);
+        boolean fim = false;
 
-        while (base.vivo) {
+        while (base.taVivo()) {
 
-            mapa.resetarMapa();
+            mapa.imprimeMapa(player, inimigo1, inimigo2);
 
-            for (int j = 0; j < 13; j++) {
-                for (int i = 0; i < 13; i++) {
-                    if (i == player.verti && j == player.horiz) {
-                        mapa.grid[i][j] = 'P';
-                    } else if ((i == inimigo1.verti && j == inimigo1.horiz) ||
-                            (i == inimigo2.verti && j == inimigo2.horiz)) {
-                        mapa.grid[i][j] = 'I';
-                    }
-                }
+            Direcao opcao = lerEntrada();
+
+            if (opcao == Direcao.TIRO) {
+                fim = mapa.disparar(player.getHoriz(), player.getVerti(), player.getUltimaDirecao());
+            } else {
+                player.setDirecao(opcao);
+                player.andar(opcao);
             }
 
-            mapa.imprimeMapa();
-
-            System.out.println("---CONTROLES---");
-            System.out.println("| W: cima     |\n| A: esquerda |\n| S: baixo    |\n| D: direita  |");
-            System.out.println("| Q: atirar   |");
-            System.out.println("---------------");
-
-            Direcao comando = lerEntrada();
-            acaoPlayer(comando, player, inimigo1, inimigo2);
-
+            if (fim == true) {
+                System.out.println("BASE DESTRUÍDA!\n");
+                break;
+            } 
         }
     }
 
+    /*
     public void acaoPlayer(Direcao comando, Jogador player, Inimigo inimigo1, Inimigo inimigo2) {
         if (comando == Direcao.TIRO) {
-            // dar tiro
-        } else {
+            boolean fimJogo = mapa.disparar (player.getVerti(), player.getHoriz(), player.getUltimaDirecao());
 
+            if (fimJogo) {
+                System.out.println("BASE DESTRUÍDA");
+                System.exit(0);
+            }
+        } else {
+            player.setDirecao(comando);
             player.andar(comando);
         }
-
     }
+    */
 
     public Direcao lerEntrada() {
         char c;
@@ -159,6 +157,7 @@ public class Jogo {
         return inimigo;
     }
 
+    /*
     public void geraBlocos(Mapa mapa) {
         for (int j = 0; j < 13; j++) {
             for (int i = 0; i < 13; i++) {
@@ -171,4 +170,5 @@ public class Jogo {
         }
 
     }
+    */
 }

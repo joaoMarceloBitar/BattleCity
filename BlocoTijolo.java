@@ -1,12 +1,11 @@
-public class BlocoTijolo extends Entidade {
+public class BlocoTijolo extends Parede {
 
     public BlocoTijolo(int horiz, int verti) {
-        super(horiz, verti,true);
+        super(horiz, verti, 2, '%');
     }
 
     @Override
-    public char getChar() {
-        throw new UnsupportedOperationException("Unimplemented method 'getChar'");
+    protected void morrer() {
+        super.morrer();
     }
-    
 }

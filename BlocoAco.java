@@ -1,12 +1,11 @@
-public class BlocoAco extends Entidade{
+public class BlocoAco extends Parede{
 
     public BlocoAco(int horiz, int verti) {
-        super(horiz, verti,false);
+        super(horiz, verti, 1000, '#');
     }
 
     @Override
-    public char getChar() {
-        throw new UnsupportedOperationException("Unimplemented method 'getChar'");
+    public void atingido() {
+        
     }
-    
 }

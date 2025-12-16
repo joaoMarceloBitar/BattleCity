@@ -1,15 +1,12 @@
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Random;
-import java.util.Scanner;
 
 public class Mapa {
     private static final int TAM = 13;
-
-    protected char[][] mapaBase = new char[TAM][TAM];
-    protected char[][] grid = new char[TAM][TAM];
+    private Entidade[][] grid;
 
     public Mapa(String caminhoArquivo) {
+        grid = new Entidade[TAM][TAM];
         carregaMapa(caminhoArquivo);
         resetarMapa();
     }
@@ -28,16 +25,25 @@ public class Mapa {
                 if (ch == '\n' || ch == '\r')
                     continue;
 
-                mapaBase[linha][coluna] = ch;
+                switch (ch) {
+                    case '#':
+                        grid[linha][coluna] = new BlocoAco(linha, coluna);
+                        break;
+                    case '%':
+                        grid[linha][coluna] = new BlocoTijolo(linha, coluna);
+                        break;
+                    case 'B':
+                        grid[linha][coluna] = new Base(linha, coluna, true);                        
+                        break;
+                    default:
+                        grid[linha][coluna] = null;
+                        break;
+                }
                 coluna++;
-
-                if (coluna == 13) {
+                if (coluna == TAM) {
                     coluna = 0;
                     linha++;
                 }
-
-                if (linha == 13)
-                    break;
             }
 
         } catch (IOException e) {
@@ -48,20 +54,41 @@ public class Mapa {
     public void resetarMapa() {
         for (int i = 0; i < TAM; i++) {
             for (int j = 0; j < TAM; j++) {
-                grid[i][j] = mapaBase[i][j];
+                if (grid[i][j] == null) {
+                    grid[i][j] = new Vazio(i, j);
+                }
             }
+        }
+    }
+
+    public void imprimeMapa(Jogador player, Inimigo i1, Inimigo i2) {
+        for (int i = 0; i < 13; i++) {
+            for (int j = 0; j < 13; j++) {
+
+                if (i == player.getVerti() && j == player.getHoriz()) {
+                    System.out.println(player.getCaractere());
+                } 
+                else if ((i == i1.getVerti() && j == i1.getHoriz()) || i == i2.getVerti() && j == i2.getHoriz()) {
+                    System.out.println('I');
+                } 
+                else {
+                    System.out.println(grid[i][j].getCaractere());
+                }
+            }
+            System.out.println();
         }
     }
 
     public void imprimeMapa() {
         for (int i = 0; i < 13; i++) {
             for (int j = 0; j < 13; j++) {
-                System.out.print(grid[i][j]);
+                System.out.print(grid[i][j].getCaractere());
             }
             System.out.println();
         }
     }
 
+    /*
     public void spawnaPersonagens() {
         Random random = new Random();
 
@@ -86,45 +113,54 @@ public class Mapa {
             grid[linhaInimigo][colunaInimigo] = 'I';
         }
     }
+    */
 
-    public void atualizarJogador(char c) {
-        int y = 0, x = 0;
-        int i = 0, j = 0;
+    public boolean disparar (int y, int x, Direcao direcao) {
+        int dy = 0;
+        int dx = 0;
 
-        switch (c) {
-            case 'w':
-                y = -1;
+        switch (direcao) {
+            case CIMA:
+                dx = -1;
                 break;
-            case 's':
-                y = 1;
+            case BAIXO:
+                dx = 1;
                 break;
-            case 'a':
-                x = -1;
+            case ESQUERDA:
+                dy = -1;
                 break;
-            case 'd':
-                x = 1;
+            case DIREITA:
+                dy = 1;
+                break;
+            default:
                 break;
         }
 
-        for (i = 0; i < 13; i++) {
-            for (j = 0; j < 13; j++) {
-                if (grid[i][j] == 'J') {
-                    break;
+        x += dx;
+        y += dy;
+
+        while (x >= 0 && x < 13 && y >= 0 && y < 13) {
+            Entidade alvo = grid[x][y];
+
+            if (alvo instanceof Vazio) {
+                x += dx;
+                y += dy;
+                continue;
+            }
+
+            alvo.atingido();
+            
+            if (!alvo.taVivo()) {
+                grid[x][y] = new Vazio(x, y);
+
+                if (alvo instanceof Base) {
+                    return true;
                 }
             }
-        }
 
-        int novoI = i + y;
-        int novoJ = j + x;
+            break;
 
-        if (novoI < 0 || novoI >= 13 || novoJ < 0 || novoJ >= 13) {
-            return;
         }
-
-        if (grid[novoI][novoJ] == '_') {
-            grid[novoI][novoJ] = 'J';
-            grid[i][j] = '_';
-        }
+        return false;
     }
-
 }
