@@ -38,12 +38,11 @@ public class Jogo {
         Jogador player = geraJogador();
         Inimigo inimigo1 = geraInimigo();
         Inimigo inimigo2 = geraInimigo();
-        Base base = new Base(7, 13, true);
+        Base base = mapa.getBase();
 
         entidades.add(player);
         entidades.add(inimigo1);
         entidades.add(inimigo2);
-        entidades.add(base);
 
         gameLoop(player, inimigo1, inimigo2, base, mapa);
     }
@@ -68,7 +67,7 @@ public class Jogo {
         return opcao;
     }
 
-    public void gameLoop(Jogador player, Inimigo inimigo1, Inimigo inimigo2, Entidade base, Mapa mapa) {
+    public void gameLoop(Jogador player, Inimigo inimigo1, Inimigo inimigo2, Base base, Mapa mapa) {
         boolean fim = false;
 
         while (base.taVivo()) {
@@ -78,10 +77,25 @@ public class Jogo {
             Direcao opcao = lerEntrada();
 
             if (opcao == Direcao.TIRO) {
-                fim = mapa.disparar(player.getHoriz(), player.getVerti(), player.getUltimaDirecao());
+                fim = mapa.disparar(player.getHoriz(), player.getVerti(), player.getUltimaDirecao(), player, inimigo1, inimigo2);
             } else {
-                player.setDirecao(opcao);
-                player.andar(opcao);
+                if (mapa.podeMover(player, opcao)) {
+                    player.setDirecao(opcao);
+                    player.andar(opcao);
+                }
+            }
+
+            moverInimigo(inimigo1);
+            moverInimigo(inimigo2);
+
+            if (!inimigo1.taVivo() && !inimigo2.taVivo()) {
+                System.out.println("VOCÊ VENCEU!");
+                break;
+            }
+
+            if (!player.taVivo()) {
+                System.out.println("PERDEU PLAYBOY");
+                break;
             }
 
             if (fim == true) {
@@ -142,6 +156,20 @@ public class Jogo {
         }
         return comando;
     }
+
+    public void moverInimigo(Inimigo inimigo) {
+        if (!inimigo.taVivo()) {
+            return;
+        }
+
+        Direcao d = Direcao.randomica();
+
+        if (mapa.podeMover(inimigo, d)) {
+            inimigo.setDirecao(d);
+            inimigo.andar(d);
+    }
+}
+
 
     public Jogador geraJogador() {
         int xPlayer = (int) (10 * (Math.random()));

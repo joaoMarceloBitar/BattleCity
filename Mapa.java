@@ -4,6 +4,7 @@ import java.io.IOException;
 public class Mapa {
     private static final int TAM = 13;
     private Entidade[][] grid;
+    private Base base;
 
     public Mapa(String caminhoArquivo) {
         grid = new Entidade[TAM][TAM];
@@ -33,7 +34,8 @@ public class Mapa {
                         grid[linha][coluna] = new BlocoTijolo(linha, coluna);
                         break;
                     case 'B':
-                        grid[linha][coluna] = new Base(linha, coluna, true);                        
+                        grid[linha][coluna] = new Base(linha, coluna);
+                        grid[linha][coluna] = base;                        
                         break;
                     default:
                         grid[linha][coluna] = null;
@@ -61,18 +63,23 @@ public class Mapa {
         }
     }
 
+    public Base getBase() {
+        return base;
+    }
+
+
     public void imprimeMapa(Jogador player, Inimigo i1, Inimigo i2) {
         for (int i = 0; i < 13; i++) {
             for (int j = 0; j < 13; j++) {
 
                 if (i == player.getVerti() && j == player.getHoriz()) {
-                    System.out.println(player.getCaractere());
+                    System.out.print(player.getCaractere());
                 } 
                 else if ((i == i1.getVerti() && j == i1.getHoriz()) || i == i2.getVerti() && j == i2.getHoriz()) {
-                    System.out.println('I');
+                    System.out.print('I');
                 } 
                 else {
-                    System.out.println(grid[i][j].getCaractere());
+                    System.out.print(grid[i][j].getCaractere());
                 }
             }
             System.out.println();
@@ -87,6 +94,35 @@ public class Mapa {
             System.out.println();
         }
     }
+
+    public boolean podeMover(Personagem p, Direcao d) {
+    int novoX = p.getHoriz();
+    int novoY = p.getVerti();
+
+    switch (d) {
+        case CIMA:
+            novoY--;
+            break;
+        case BAIXO:
+            novoY++;
+            break;
+        case ESQUERDA:
+            novoX--;
+            break;
+        case DIREITA:
+            novoX++;
+            break;
+        default:
+            return false;
+    }
+
+    if (novoX < 0 || novoX >= TAM || novoY < 0 || novoY >= TAM) {
+        return false;
+    }
+
+    return grid[novoY][novoX].podeAtravessar();
+}
+
 
     /*
     public void spawnaPersonagens() {
@@ -115,7 +151,7 @@ public class Mapa {
     }
     */
 
-    public boolean disparar (int y, int x, Direcao direcao) {
+    public boolean disparar (int y, int x, Direcao direcao, Jogador player, Inimigo i1, Inimigo i2) {
         int dy = 0;
         int dx = 0;
 
@@ -140,7 +176,18 @@ public class Mapa {
         y += dy;
 
         while (x >= 0 && x < 13 && y >= 0 && y < 13) {
-            Entidade alvo = grid[x][y];
+           
+            if (i1.taVivo() && i1.getHoriz() == x && i1.getVerti() == y) {
+                i1.atingido();
+                return false;
+            }
+
+            if (i2.taVivo() && i2.getHoriz() == x && i2.getVerti() == y) {
+                i2.atingido();
+                return false;
+            }
+
+            Entidade alvo = grid[y][x];
 
             if (alvo instanceof Vazio) {
                 x += dx;
@@ -151,7 +198,7 @@ public class Mapa {
             alvo.atingido();
             
             if (!alvo.taVivo()) {
-                grid[x][y] = new Vazio(x, y);
+                grid[y][x] = new Vazio(x, y);
 
                 if (alvo instanceof Base) {
                     return true;
