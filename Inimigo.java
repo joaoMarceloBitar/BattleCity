@@ -1,4 +1,4 @@
-public class Inimigo extends Personagem {
+public class Inimigo extends Personagem implements Atingivel {
     int dano;
 
     public Inimigo(int horiz,int verti, Direcao ultimaDirecao){
@@ -12,5 +12,8 @@ public class Inimigo extends Personagem {
     @Override
     public char getChar() {
         return 'I';
+    }
+    public char getCharAtingido() {
+        return '_';
     }
 }

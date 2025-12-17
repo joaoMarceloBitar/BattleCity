@@ -1,4 +1,4 @@
-public class BlocoTijolo extends Entidade {
+public class BlocoTijolo extends Entidade implements Atingivel {
 
     public BlocoTijolo(int horiz, int verti) {
         super(horiz, verti,true);
@@ -6,7 +6,9 @@ public class BlocoTijolo extends Entidade {
 
     @Override
     public char getChar() {
-        throw new UnsupportedOperationException("Unimplemented method 'getChar'");
+        return '%';
     }
-    
+    public char getCharAtingido() {
+        return '_';
+    }
 }

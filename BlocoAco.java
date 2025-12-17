@@ -6,7 +6,10 @@ public class BlocoAco extends Entidade{
 
     @Override
     public char getChar() {
-        throw new UnsupportedOperationException("Unimplemented method 'getChar'");
+        return '#';
+    }
+    public char getCharAtingido() {
+        return '_';
     }
     
 }

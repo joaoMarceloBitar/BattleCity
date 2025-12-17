@@ -80,9 +80,17 @@ public class Jogo {
 
             for (int j = 0; j < 13; j++) {
                 for (int i = 0; i < 13; i++) {
+                    for (int k = 0; k < entidades.size(); k++) {
+                        Entidade e = entidades.get(k);
+                        if (e.vivo && i == e.verti && j == e.horiz) {
+                            mapa.grid[i][j] = e.getChar();
+                        } else if (!e.vivo && i == e.verti && j == e.horiz && e instanceof Atingivel) {
+                            mapa.grid[i][j] = ((Atingivel) e).getCharAtingido();
+                        }
+                    }
                     for (int k = 0; k < disparos.size(); k++) {
                         Disparo tiro = disparos.get(k);
-                        if( i== tiro.verti && j==tiro.horiz){
+                        if (i == tiro.verti && j == tiro.horiz) {
                             mapa.grid[i][j] = 'O';
                         }
                     }
@@ -94,11 +102,11 @@ public class Jogo {
                     }
                 }
             }
-
+            
+            moveDisparos(entidades);
             mapa.imprimeMapa();
-            
-            moveDisparos();
-            
+
+
             System.out.println("---CONTROLES---");
             System.out.println("| W: cima     |\n| A: esquerda |\n| S: baixo    |\n| D: direita  |");
             System.out.println("| Q: atirar   |");
@@ -106,16 +114,13 @@ public class Jogo {
 
             Direcao comando = lerEntrada();
             acaoPlayer(comando, player, inimigo1, inimigo2);
-            
+
         }
     }
 
     public void acaoPlayer(Direcao comando, Jogador player, Inimigo inimigo1, Inimigo inimigo2) {
 
         if (comando == Direcao.TIRO) {
-            int novox = player.proximoX(player.ultimaDirecao);
-            int novoy = player.proximoY(player.ultimaDirecao);
-
             Disparo tiro = player.atirar(player.ultimaDirecao);
             disparos.add(tiro);
         } else {
@@ -196,16 +201,33 @@ public class Jogo {
             return false;
 
         for (Entidade e : entidades) {
-            if (e.getX() == x && e.getY() == y) {
+            if (e.getX() == x && e.getY() == y && e.vivo) {
                 return false;
             }
         }
         return true;
     }
 
-    public void moveDisparos(){
-        for(int i=0; i<disparos.size(); i++){
+    public void moveDisparos(List<Entidade> entidades) {
+        if (disparos.isEmpty()) {
+            return;
+        }
+        for (int i = 0; i < disparos.size(); i++) {
             Disparo tiro = disparos.get(i);
+
+            for (Entidade e : entidades) {
+
+                int proX = tiro.proximoX(tiro.direcaoDisparo);
+                int proY = tiro.proximoY(tiro.direcaoDisparo);
+
+                if ((e.getX() == tiro.getX() && e.getY() == tiro.getY()) ||(proY == e.getY() && proX == e.getX() && e.vivo)) {
+                    e.vivo = false;
+                    disparos.remove(i);
+                    i--;
+                    break;
+                }
+            }
+
             tiro.move();
         }
     }
