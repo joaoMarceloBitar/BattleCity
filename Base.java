@@ -1,4 +1,4 @@
-public class Base extends Entidade{
+public class Base extends Entidade implements Atingivel {
 
     public Base(int horiz, int verti, boolean destrutivo) {
         super(horiz, verti, destrutivo);
@@ -6,7 +6,12 @@ public class Base extends Entidade{
 
     @Override
     public char getChar() {
-        throw new UnsupportedOperationException("Unimplemented method 'getChar'");
+        return 'B';
+    }
+
+    @Override
+    public char getCharAtingido() {
+        return 'X';
     }
     
 }

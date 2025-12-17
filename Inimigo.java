@@ -16,4 +16,5 @@ public class Inimigo extends Personagem implements Atingivel {
     public char getCharAtingido() {
         return '_';
     }
+    
 }

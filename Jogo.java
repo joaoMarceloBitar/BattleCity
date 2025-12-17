@@ -40,14 +40,12 @@ public class Jogo {
         Jogador player = geraJogador();
         Inimigo inimigo1 = geraInimigo();
         Inimigo inimigo2 = geraInimigo();
-        Base base = new Base(7, 13, true);
 
         entidades.add(player);
         entidades.add(inimigo1);
         entidades.add(inimigo2);
-        entidades.add(base);
 
-        gameLoop(player, inimigo1, inimigo2, base, mapa);
+        gameLoop(player, inimigo1, inimigo2, mapa);
     }
 
     private void desenhar() {
@@ -70,12 +68,21 @@ public class Jogo {
         return opcao;
     }
 
-    public void gameLoop(Jogador player, Inimigo inimigo1, Inimigo inimigo2, Entidade base, Mapa mapa) {
+    public void gameLoop(Jogador player, Inimigo inimigo1, Inimigo inimigo2, Mapa mapa) {
 
         geraBlocos(mapa);
 
-        while (base.vivo) {
+        while (true) {
 
+            System.out.println("\n--- LOG ENTIDADES ---");
+            for (Entidade e : entidades) {
+                String tipo = e.getClass().getSimpleName();
+                System.out.printf("%s - X: %d Y: %d - %s\n", tipo, e.horiz, e.verti, e.vivo ? "VIVO" : "MORTO");
+            }
+            for (Disparo d : disparos) {
+                System.out.printf("Disparo - X: %d Y: %d\n", d.horiz, d.verti);
+            }
+            System.out.println("---------------------\n");
             mapa.resetarMapa();
 
             for (int j = 0; j < 13; j++) {
@@ -96,24 +103,25 @@ public class Jogo {
                     }
                     if (i == player.verti && j == player.horiz) {
                         mapa.grid[i][j] = player.getChar();
-                    } else if ((i == inimigo1.verti && j == inimigo1.horiz) ||
-                            (i == inimigo2.verti && j == inimigo2.horiz)) {
-                        mapa.grid[i][j] = inimigo1.getChar();
                     }
                 }
             }
-            
-            moveDisparos(entidades);
+
             mapa.imprimeMapa();
 
+            moveDisparos();
+
+            verificaVitoria(entidades);
 
             System.out.println("---CONTROLES---");
             System.out.println("| W: cima     |\n| A: esquerda |\n| S: baixo    |\n| D: direita  |");
             System.out.println("| Q: atirar   |");
             System.out.println("---------------");
+            System.out.println("Pontos: " + pontos);
 
             Direcao comando = lerEntrada();
             acaoPlayer(comando, player, inimigo1, inimigo2);
+            verificaEntidades(player);
 
         }
     }
@@ -190,7 +198,10 @@ public class Jogo {
                     entidades.add(new BlocoAco(j, i));
                 } else if (mapa.grid[i][j] == '%') {
                     entidades.add(new BlocoTijolo(j, i));
-                }
+                }  else if (mapa.grid[i][j] == 'B') {
+                entidades.add(new Base(j, i, true));
+                mapa.grid[i][j] = '_';
+            }
             }
         }
 
@@ -208,27 +219,72 @@ public class Jogo {
         return true;
     }
 
-    public void moveDisparos(List<Entidade> entidades) {
-        if (disparos.isEmpty()) {
-            return;
+    public void moveDisparos() {
+        List<Disparo> disparosParaRemover = new ArrayList<>();
+
+        for (Disparo tiro : disparos) {
+            tiro.move();
+
+            if (tiro.horiz < 0 || tiro.horiz >= 13 ||
+                    tiro.verti < 0 || tiro.verti >= 13) {
+                disparosParaRemover.add(tiro);
+            }
         }
-        for (int i = 0; i < disparos.size(); i++) {
-            Disparo tiro = disparos.get(i);
 
+        disparos.removeAll(disparosParaRemover);
+    }
+
+    public void verificaEntidades(Jogador player) {
+        List<Disparo> disparosParaRemover = new ArrayList<>();
+
+        for (Disparo tiro : disparos) {
             for (Entidade e : entidades) {
-
-                int proX = tiro.proximoX(tiro.direcaoDisparo);
-                int proY = tiro.proximoY(tiro.direcaoDisparo);
-
-                if ((e.getX() == tiro.getX() && e.getY() == tiro.getY()) ||(proY == e.getY() && proX == e.getX() && e.vivo)) {
+                if(e.vivo && e.getX() == tiro.getX() && e.getY() == tiro.getY() && !e.destrutivo){
+                    disparosParaRemover.add(tiro);
+                    break;
+                }
+                if (e.vivo && e.getX() == tiro.getX() && e.getY() == tiro.getY() && e.destrutivo) {
                     e.vivo = false;
-                    disparos.remove(i);
-                    i--;
+                    disparosParaRemover.add(tiro);
+
+                    if (e instanceof Inimigo) {
+                        pontos += 100;
+                    }
                     break;
                 }
             }
 
-            tiro.move();
+            if (player.vivo && player.getX() == tiro.getX() && player.getY() == tiro.getY()) {
+                player.vida--;
+                disparosParaRemover.add(tiro);
+                System.out.println("Jogador atingido!");
+            }
+        }
+
+        disparos.removeAll(disparosParaRemover);
+    }
+
+    public void verificaVitoria(List<Entidade> elementos) {
+        boolean inimigoVivo = false;
+        boolean baseViva = false;
+
+        for (Entidade e : elementos) {
+            if (e instanceof Inimigo && e.vivo) {
+                inimigoVivo = true;
+            }
+            if (e instanceof Base && e.vivo) {
+                baseViva = true;
+            }
+        }
+
+        if (!inimigoVivo) {
+            System.out.println("Você venceu! Todos os inimigos foram destruídos.");
+            System.exit(0);
+        }
+
+        if (!baseViva) {
+            System.out.println("Você perdeu! A base foi destruída.");
+            System.exit(0);
         }
     }
 }
