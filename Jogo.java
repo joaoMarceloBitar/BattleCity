@@ -228,7 +228,7 @@ public class Jogo {
     }
 
     public boolean podeMover(int x, int y) {
-        if (x < 0 && x > 13 && y < 0 && y > 13)
+        if (x < 0 || x > 13 || y < 0 || y > 13)
             return false;
 
         for (Entidade e : entidades) {
