@@ -7,6 +7,7 @@ public class Jogador extends Personagem {
         this.dano = 1;
     }
 
+    /*
     public void andar(Direcao direcao) {
         if (direcao == Direcao.CIMA) {
             this.verti--;
@@ -42,11 +43,7 @@ public class Jogador extends Personagem {
 
         return verti;
     }
-
-    public boolean podeQuebrar() {
-        return false;
-    }
-
+        
     public Disparo atirar(Direcao direcaoTiro){
 
         int xTiro = this.proximoX(direcaoTiro);
@@ -54,6 +51,11 @@ public class Jogador extends Personagem {
 
         Disparo tiro = new Disparo(ultimaDirecao,xTiro,yTiro);
         return tiro;
+    }
+    */
+
+    public boolean podeQuebrar() {
+        return false;
     }
 
     @Override

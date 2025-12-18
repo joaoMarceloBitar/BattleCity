@@ -123,10 +123,15 @@ public class Jogo {
             acaoPlayer(comando, player, inimigo1, inimigo2);
             verificaEntidades(player);
 
+            Direcao comandoInimigo1 = Direcao.randomica();
+            acaoInimigo(comandoInimigo1, inimigo1, player);
+            
+            Direcao comandoInimigo2 = Direcao.randomica();
+            acaoInimigo(comandoInimigo2, inimigo2, player);
         }
     }
 
-    public void acaoPlayer(Direcao comando, Jogador player, Inimigo inimigo1, Inimigo inimigo2) {
+    public void acaoPlayer(Direcao comando, Personagem player, Inimigo inimigo1, Inimigo inimigo2) {
 
         if (comando == Direcao.TIRO) {
             Disparo tiro = player.atirar(player.ultimaDirecao);
@@ -137,6 +142,21 @@ public class Jogo {
 
             if (podeMover(novoX, novoY)) {
                 player.andar(comando);
+            }
+        }
+    }
+
+    public void acaoInimigo(Direcao comando, Personagem inimigo, Jogador player) {
+
+        if (comando == Direcao.TIRO) {
+            Disparo tiro = inimigo.atirar(inimigo.ultimaDirecao);
+            disparos.add(tiro);
+        } else {
+            int novoX = inimigo.proximoX(comando);
+            int novoY = inimigo.proximoY(comando);
+
+            if (podeMover(novoX, novoY)) {
+                inimigo.andar(comando);
             }
         }
     }
@@ -208,7 +228,7 @@ public class Jogo {
     }
 
     public boolean podeMover(int x, int y) {
-        if (x < 0 || x > 13 || y < 0 || y > 13)
+        if (x < 0 && x > 13 && y < 0 && y > 13)
             return false;
 
         for (Entidade e : entidades) {
