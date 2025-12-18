@@ -33,10 +33,12 @@ public class Jogo {
         int min = 1;
         int max = 3;
 
-        int numMapa = min + (int) (Math.random() * ((max - min) + 1));
-        entidades.clear();
+        if (mapa == null) {
+            int numMapa = min + (int) (Math.random() * ((max - min) + 1));
+            entidades.clear();
 
-        mapa = new Mapa("mapa" + numMapa + ".txt");
+            mapa = new Mapa("mapa" + numMapa + ".txt");
+        }
         Jogador player = geraJogador();
         Inimigo inimigo1 = geraInimigo();
         Inimigo inimigo2 = geraInimigo();
@@ -50,10 +52,35 @@ public class Jogo {
 
     private void desenhar() {
         if (mapa == null) {
-            System.out.println("Nenhum mapa carregado. Inicie o jogo primeiro.");
+
+            int opcao;
+
+            System.out.println("Selecione o numero do mapa: \n");
+            System.out.println(" 1 | mapa 1");
+            System.out.println(" 2 | container bar");
+            System.out.println(" 3 | praca pedro osorio");
+
+            opcao = scan.nextInt();
+            switch (opcao) {
+                case 1:
+                    System.out.println("Carregando mapa 1...");
+                    break;
+                case 2:
+                    System.out.println("Carregando container bar...");
+                    break;
+                case 3:
+                    System.out.println("Carregando praca pedro osorio...");
+                    break;
+
+                default:
+                    System.out.println("Opção inválida, Carregando mapa 1 por padrão.");
+                    opcao = 1;
+            }
+            mapa = new Mapa("mapa" + opcao + ".txt");
             return;
+        } else {
+            mapa.imprimeMapa();
         }
-        mapa.imprimeMapa();
     }
 
     public static int menu() {
@@ -111,7 +138,7 @@ public class Jogo {
 
             moveDisparos();
 
-            verificaVitoria(entidades);
+            verificaVitoria(entidades, player);
 
             System.out.println("---CONTROLES---");
             System.out.println("| W: cima     |\n| A: esquerda |\n| S: baixo    |\n| D: direita  |");
@@ -125,7 +152,7 @@ public class Jogo {
 
             Direcao comandoInimigo1 = Direcao.randomica();
             acaoInimigo(comandoInimigo1, inimigo1, player);
-            
+
             Direcao comandoInimigo2 = Direcao.randomica();
             acaoInimigo(comandoInimigo2, inimigo2, player);
         }
@@ -218,10 +245,10 @@ public class Jogo {
                     entidades.add(new BlocoAco(j, i));
                 } else if (mapa.grid[i][j] == '%') {
                     entidades.add(new BlocoTijolo(j, i));
-                }  else if (mapa.grid[i][j] == 'B') {
-                entidades.add(new Base(j, i, true));
-                mapa.grid[i][j] = '_';
-            }
+                } else if (mapa.grid[i][j] == 'B') {
+                    entidades.add(new Base(j, i, true));
+                    mapa.grid[i][j] = '_';
+                }
             }
         }
 
@@ -259,7 +286,7 @@ public class Jogo {
 
         for (Disparo tiro : disparos) {
             for (Entidade e : entidades) {
-                if(e.vivo && e.getX() == tiro.getX() && e.getY() == tiro.getY() && !e.destrutivo){
+                if (e.vivo && e.getX() == tiro.getX() && e.getY() == tiro.getY() && !e.destrutivo) {
                     disparosParaRemover.add(tiro);
                     break;
                 }
@@ -280,11 +307,10 @@ public class Jogo {
                 System.out.println("Jogador atingido!");
             }
         }
-
         disparos.removeAll(disparosParaRemover);
     }
 
-    public void verificaVitoria(List<Entidade> elementos) {
+    public void verificaVitoria(List<Entidade> elementos, Jogador player) {
         boolean inimigoVivo = false;
         boolean baseViva = false;
 
@@ -304,6 +330,10 @@ public class Jogo {
 
         if (!baseViva) {
             System.out.println("Você perdeu! A base foi destruída.");
+            System.exit(0);
+        }
+        if (player.vida <= 0 || !player.vivo) {
+            player.vivo = false;
             System.exit(0);
         }
     }
