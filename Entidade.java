@@ -12,6 +12,7 @@ public abstract class Entidade {
         this.vivo = true;
     }
 
+
     
     public int getX() { return horiz; }
     public int getY() { return verti; }

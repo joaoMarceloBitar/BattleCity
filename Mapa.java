@@ -1,16 +1,71 @@
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Mapa {
     private static final int TAM = 13;
 
+    protected ArrayList<Entidade> blocos = new ArrayList<>();
+    protected Entidade[][] mapaEntidades = new Entidade[TAM][TAM];
     protected char[][] mapaBase = new char[TAM][TAM];
     protected char[][] grid = new char[TAM][TAM];
 
     public Mapa(String caminhoArquivo) {
         carregaMapa(caminhoArquivo);
+        carregaMapaEntidades(caminhoArquivo);
         resetarMapa();
+    }
+
+    public void carregaMapaEntidades(String caminhoArquivo) {
+        try (FileReader reader = new FileReader(caminhoArquivo)) {
+
+            int c;
+            Entidade entidadeLida;
+            int y = 0;
+            int x = 0;
+
+            while ((c = reader.read()) != -1) {
+
+                char ch = (char) c;
+
+                if (ch == '\n' || ch == '\r')
+                    continue;
+
+                switch (ch) {
+                    case '#':
+                        entidadeLida = new BlocoAco(x, y);
+                        blocos.add(entidadeLida);
+                        break;
+                    case '%':
+                        entidadeLida = new BlocoTijolo(x, y);
+                        blocos.add(entidadeLida);
+                        break;
+                    case '_':
+                        entidadeLida = new Vazio(x, y);
+                        break;
+                    default:
+                        entidadeLida = new Vazio(x, y);
+                        break;
+                }
+
+                mapaEntidades[y][x] = entidadeLida;
+                x++;
+
+                if (x == 13) {
+                    x = 0;
+                    y++;
+                }
+
+                if (y == 13)
+                    break;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Base base = new Base(6, 12, true);
+        blocos.add(base);
     }
 
     public void carregaMapa(String caminhoArquivo) {
@@ -41,6 +96,21 @@ public class Mapa {
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void limpaMapaEntidades() {
+        for (int i = 0; i < 13; i++) {
+            for (int j = 0; j < 13; j++) {
+                this.mapaEntidades[i][j] = new Vazio(j, i);
+            }
+        }
+    }
+
+    public void renderizaMapa() {
+        this.limpaMapaEntidades();
+        for (Entidade bloco : blocos) {
+            mapaEntidades[bloco.verti][bloco.horiz] = bloco;
         }
     }
 

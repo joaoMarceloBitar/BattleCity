@@ -9,8 +9,7 @@ public class Disparo extends Entidade{
 
     @Override
     public char getChar() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getChar'");
+        return 'O';
     }
 
     public void move(){
