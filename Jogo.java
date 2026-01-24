@@ -207,8 +207,6 @@ public class Jogo {
 
 public void posicionaEntidades() {
 
-    // blocos já foram colocados no renderizaMapa()
-
     for (Entidade e : entidades) {
         if (!e.vivo) continue;
 
@@ -230,19 +228,26 @@ public void posicionaEntidades() {
     }
 }
 
-    public void percorreMapaEntidades() {
-        System.out.println("--- ENTIDADES NO MAPA ---");
-        for (int i = 0; i < 13; i++) {
-            for (int j = 0; j < 13; j++) {
-                if (mapa.mapaEntidades[i][j] instanceof Atingivel && !mapa.mapaEntidades[i][j].vivo) {
-                    mapa.mapaEntidades[i][j] = new Vazio(j, i);
-                    continue;
-                }
-                System.out.print(mapa.mapaEntidades[i][j].getChar());
+public void percorreMapaEntidades() {
+    System.out.println("--- ENTIDADES NO MAPA ---");
+
+    for (int i = 0; i < 13; i++) {
+        for (int j = 0; j < 13; j++) {
+
+            Entidade e = mapa.mapaEntidades[i][j];
+
+            if (e instanceof Atingivel && !e.vivo) {
+
+                Vazio vazio = new Vazio(j, i);
+                mapa.mapaEntidades[i][j] = new Vazio(j, i);
+                System.out.print(vazio.getChar());
+            } else {
+                System.out.print(e.getChar());
             }
-            System.out.println();
         }
+        System.out.println();
     }
+}
 
     public void acaoPlayer(Direcao comando, Personagem player, Inimigo inimigo1, Inimigo inimigo2) {
 
@@ -337,21 +342,26 @@ public void posicionaEntidades() {
             return false;
     }
 
-    public void moveDisparos() {
-        List<Disparo> disparosParaRemover = new ArrayList<>();
+public void moveDisparos() {
+    List<Disparo> disparosParaRemover = new ArrayList<>();
 
-        for (Disparo tiro : disparos) {
-            tiro.move();
+    for (Disparo tiro : disparos) {
+        tiro.move();
 
-            if (tiro.horiz < 0 || tiro.horiz >= 13 ||
-                    tiro.verti < 0 || tiro.verti >= 13) {
-                disparosParaRemover.add(tiro);
-            }
+        if (tiro.horiz < 0 || tiro.horiz >= 13 ||
+            tiro.verti < 0 || tiro.verti >= 13) {
+
+            disparosParaRemover.add(tiro);
+            continue;
         }
 
-        disparos.removeAll(disparosParaRemover);
+        if ((mapa.mapaEntidades[tiro.verti][tiro.horiz] instanceof BlocoAco)) {
+            disparosParaRemover.add(tiro);
+        }
     }
 
+    disparos.removeAll(disparosParaRemover);
+}
     public void verificaEntidades(Jogador player) {
         List<Disparo> disparosParaRemover = new ArrayList<>();
         List<Entidade> InimigosParaRemover = new ArrayList<>();
