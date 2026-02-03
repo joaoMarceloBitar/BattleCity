@@ -1,3 +1,5 @@
+package Jogo;
+
 public class BlocoAco extends Entidade{
 
     public BlocoAco(int horiz, int verti) {

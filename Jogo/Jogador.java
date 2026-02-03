@@ -1,23 +1,18 @@
-public abstract class Personagem extends Entidade {
-    protected Direcao ultimaDirecao;
+package Jogo;
 
-    public Personagem(int horiz, int verti, Direcao direcao) {
-        super(horiz, verti, true);
-        this.ultimaDirecao = direcao;
+public class Jogador extends Personagem {
+    int dano;
+    int vida;
+    int pontos;
+
+    public Jogador(int horiz, int verti, Direcao ultimaDirecao) {
+        super(horiz, verti, ultimaDirecao);
+        this.vida = 3;
+        this.dano = 1;
+        this.pontos = 0;
     }
 
-    public void setDirecao(Direcao d) {
-        this.ultimaDirecao = d;
-    }
-
-    public Disparo disparar(Direcao ultimaDirecao, int x, int y) {
-        return new Disparo(ultimaDirecao,x,y);
-    }
-
-    public Direcao getUltimaDirecao() {
-        return ultimaDirecao;
-    }
-
+    /*
     public void andar(Direcao direcao) {
         if (direcao == Direcao.CIMA) {
             this.verti--;
@@ -53,7 +48,7 @@ public abstract class Personagem extends Entidade {
 
         return verti;
     }
-
+        
     public Disparo atirar(Direcao direcaoTiro){
 
         int xTiro = this.proximoX(direcaoTiro);
@@ -61,5 +56,43 @@ public abstract class Personagem extends Entidade {
 
         Disparo tiro = new Disparo(ultimaDirecao,xTiro,yTiro);
         return tiro;
+    }
+    */
+
+    public int getX() {
+        return this.horiz;
+    }
+
+    public int getY() {
+        return this.verti;
+    }
+
+    public void setX(int x) {
+        this.horiz = x;
+    }
+
+    public void setY(int y) {
+        this.verti = y;
+    }
+
+    public boolean podeQuebrar() {
+        return false;
+    }
+
+    public int getVida() {
+        return this.vida;
+    }
+
+    public int getPontos() {
+        return this.pontos;
+    }
+
+    public void setVida() {
+        this.vida = this.vida - 1;
+    }
+
+    @Override
+    public char getChar() {
+        return 'P';
     }
 }

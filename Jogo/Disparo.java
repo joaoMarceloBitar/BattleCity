@@ -1,5 +1,9 @@
+package Jogo;
+
 public class Disparo extends Entidade{
     Direcao direcaoDisparo;
+    private int oldX;
+    private int oldY;
 
     public Disparo(Direcao direcao, int horiz, int verti){
         super(horiz, verti,true);
@@ -13,6 +17,9 @@ public class Disparo extends Entidade{
     }
 
     public void move(){
+        this.oldX = this.horiz; 
+        this.oldY = this.verti;
+
         switch (direcaoDisparo) {
             case CIMA:
                 verti--;
@@ -46,4 +53,7 @@ public class Disparo extends Entidade{
 
         return verti;
     }
+
+    public int getOldX() { return oldX; }
+    public int getOldY() { return oldY; }
 }

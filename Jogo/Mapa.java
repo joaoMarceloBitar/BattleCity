@@ -1,3 +1,5 @@
+package Jogo;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +17,10 @@ public class Mapa {
         carregaMapa(caminhoArquivo);
         carregaMapaEntidades(caminhoArquivo);
         resetarMapa();
+    }
+
+    public Entidade[][] getMapEntidades() {
+        return this.mapaEntidades;
     }
 
     public void carregaMapaEntidades(String caminhoArquivo) {

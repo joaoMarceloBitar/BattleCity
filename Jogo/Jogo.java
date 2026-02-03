@@ -1,16 +1,28 @@
+package Jogo;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import Interface.TelaJogo;
+
 public class Jogo {
     private static final Scanner scan = new Scanner(System.in);
+    private Jogador player;
     private List<Entidade> entidades = new ArrayList<>();
+    List<Disparo> disparosParaRemover = new ArrayList<>();
+    List<Entidade> InimigosParaRemover = new ArrayList<>();
     private List<Disparo> disparos = new ArrayList<>();
     private Mapa mapa;
-    private int pontos = 0;
+    private int mapaEscolhido = -1;
 
+   /*
     public static void main(String[] args) {
         Jogo jogo = new Jogo();
+
+        SwingUtilities.invokeLater(() -> {
+            new TelaJogo(jogo);
+        });
         int opcao;
 
         do {
@@ -28,21 +40,58 @@ public class Jogo {
             }
         } while (opcao >= 1 && opcao <= 3);
     }
+        */
+
+    public Jogador getPlayer() {
+        return this.player;
+    }
+
+    public List<Entidade> getEntidades() {
+        return this.entidades;
+    }
+
+    public List<Disparo> getDisparos() {
+        return this.disparos;
+    }
+
+    public List<Entidade> getInimigosParaRemover() {
+        return this.InimigosParaRemover;
+    }
+
+    public List<Disparo> getDisparosParaRemover() {
+        return this.disparosParaRemover;
+    }
+
+    public Mapa getMapa() {
+        return this.mapa;
+    }
+
+    public void setMapaEscolhido(int id) {
+        this.mapaEscolhido = id;
+    }
 
     public void iniciar() {
         int min = 1;
         int max = 3;
+        int numMapa;
 
-        if (mapa == null) {
-            int numMapa = min + (int) (Math.random() * ((max - min) + 1));
-            entidades.clear();
-
-            mapa = new Mapa("mapa" + numMapa + ".txt");
+        if (mapaEscolhido != -1) {
+            numMapa = mapaEscolhido;
+        } else {
+            numMapa = min + (int) (Math.random() * ((max - min) + 1));
+            entidades.clear();            
         }
+        mapa = new Mapa("Mapas/mapa" + numMapa + ".txt");
+        this.mapa.renderizaMapa();
 
-        gameLoop(mapa);
+        this.player = geraJogador();
+        this.entidades.clear();
+        this.entidades.add(player);
+        this.entidades.add(geraInimigo());
+        this.entidades.add(geraInimigo());
     }
 
+    /*
     private void desenhar() {
         if (mapa == null) {
 
@@ -75,6 +124,7 @@ public class Jogo {
             mapa.imprimeMapa();
         }
     }
+        */
 
     public static int menu() {
         int opcao;
@@ -111,11 +161,11 @@ public class Jogo {
             System.out.println("| W: cima     |\n| A: esquerda |\n| S: baixo    |\n| D: direita  |");
             System.out.println("| Q: atirar   |");
             System.out.println("---------------");
-            System.out.println("Pontos: " + pontos);
+            System.out.println("Pontos: " + player.pontos);
 
             
             Direcao comando = lerEntrada();
-            acaoPlayer(comando, player, inimigo1, inimigo2);
+            acaoPlayer(comando, player);
             verificaEntidades(player);
             
             Direcao comandoInimigo1 = Direcao.randomica();
@@ -124,69 +174,21 @@ public class Jogo {
             Direcao comandoInimigo2 = Direcao.randomica();
             acaoInimigo(comandoInimigo2, inimigo2, player);
             verificaEntidades(player);
-            /*
-             * System.out.println("\n--- LOG ENTIDADES ---");
-             * 
-             * 
-             * for (Entidade e : entidades) {
-             * String tipo = e.getClass().getSimpleName();
-             * System.out.printf("%s - X: %d Y: %d - %s\n", tipo, e.horiz, e.verti, e.vivo ?
-             * "VIVO" : "MORTO");
-             * }
-             * for (Disparo d : disparos) {
-             * System.out.printf("Disparo - X: %d Y: %d\n", d.horiz, d.verti);
-             * }
-             * System.out.println("---------------------\n");
-             * mapa.resetarMapa();
-             * 
-             * for (int j = 0; j < 13; j++) {
-             * for (int i = 0; i < 13; i++) {
-             * for (int k = 0; k < entidades.size(); k++) {
-             * Entidade e = entidades.get(k);
-             * if (e.vivo && i == e.verti && j == e.horiz) {
-             * mapa.grid[i][j] = e.getChar();
-             * } else if (!e.vivo && i == e.verti && j == e.horiz && e instanceof Atingivel)
-             * {
-             * mapa.grid[i][j] = ((Atingivel) e).getCharAtingido();
-             * }
-             * }
-             * for (int k = 0; k < disparos.size(); k++) {
-             * Disparo tiro = disparos.get(k);
-             * if (i == tiro.verti && j == tiro.horiz) {
-             * mapa.grid[i][j] = 'O';
-             * }
-             * }
-             * if (i == player.verti && j == player.horiz) {
-             * mapa.grid[i][j] = player.getChar();
-             * }
-             * }
-             * }
-             * 
-             * mapa.imprimeMapa();
-             * 
-             * moveDisparos();
-             * 
-             * verificaVitoria(entidades, player);
-             * 
-             * System.out.println("---CONTROLES---");
-             * System.out.
-             * println("| W: cima     |\n| A: esquerda |\n| S: baixo    |\n| D: direita  |"
-             * );
-             * System.out.println("| Q: atirar   |");
-             * System.out.println("---------------");
-             * System.out.println("Pontos: " + pontos);
-             * 
-             * Direcao comando = lerEntrada();
-             * acaoPlayer(comando, player, inimigo1, inimigo2);
-             * verificaEntidades(player);
-             * 
-             * Direcao comandoInimigo1 = Direcao.randomica();
-             * acaoInimigo(comandoInimigo1, inimigo1, player);
-             * 
-             * Direcao comandoInimigo2 = Direcao.randomica();
-             * acaoInimigo(comandoInimigo2, inimigo2, player);
-             */
         }
+    }
+
+    public void executarCiclo() {
+        moveDisparos();
+        
+        for (Entidade e : entidades) {
+            if (e instanceof Inimigo && e.isVivo() == true) {
+                Direcao comandoIni = Direcao.randomica();
+                acaoInimigo(comandoIni, (Inimigo) e, this.player);  
+            }
+        }
+
+        verificaEntidades(this.player);
+        verificaVitoria(entidades, this.player);
     }
 
     public Jogador geraJogador() {
@@ -244,7 +246,7 @@ public void posicionaEntidades() {
         }
     }
 
-    public void acaoPlayer(Direcao comando, Personagem player, Inimigo inimigo1, Inimigo inimigo2) {
+    public void acaoPlayer(Direcao comando, Personagem player) {
 
         if (comando == Direcao.TIRO) {
             Disparo tiro = player.atirar(player.ultimaDirecao);
@@ -312,22 +314,6 @@ public void posicionaEntidades() {
         return comando;
     }
 
-    // public void geraBlocos(Mapa mapa) {
-    // for (int j = 0; j < 13; j++) {
-    // for (int i = 0; i < 13; i++) {
-    // if (mapa.grid[i][j] == '#') {
-    // entidades.add(new BlocoAco(j, i));
-    // } else if (mapa.grid[i][j] == '%') {
-    // entidades.add(new BlocoTijolo(j, i));
-    // } else if (mapa.grid[i][j] == 'B') {
-    // entidades.add(new Base(j, i, true));
-    // mapa.grid[i][j] = '_';
-    // }
-    // }
-    // }
-
-    // }
-
     public boolean podeMover(int x, int y) {
         if (x < 0 || x > 12 || y < 0 || y > 12)
             return false;
@@ -350,12 +336,11 @@ public void posicionaEntidades() {
         }
 
         disparos.removeAll(disparosParaRemover);
+
+        disparosParaRemover.clear();
     }
 
     public void verificaEntidades(Jogador player) {
-        List<Disparo> disparosParaRemover = new ArrayList<>();
-        List<Entidade> InimigosParaRemover = new ArrayList<>();
-
         for (Disparo tiro : disparos) {
             for (Entidade e : entidades) {
                 if (e.vivo && e.getX() == tiro.getX() && e.getY() == tiro.getY() && !e.destrutivo) {
@@ -364,11 +349,12 @@ public void posicionaEntidades() {
                 }
                 if (e.vivo && e.getX() == tiro.getX() && e.getY() == tiro.getY() && e.destrutivo) {
                     e.vivo = false;
+                    InimigosParaRemover.add(e);
                     disparosParaRemover.add(tiro);
 
                     if (e instanceof Inimigo) {
                         InimigosParaRemover.add(e);
-                        pontos += 100;
+                        player.pontos += 100;
                         System.out.println("Inimigo destruído! +100 pontos.");
                     }
                     break;
@@ -379,6 +365,7 @@ public void posicionaEntidades() {
                 if (e.vivo && e.getX() == tiro.getX() && e.getY() == tiro.getY() && e.destrutivo) {
                     e.vivo = false;
                     disparosParaRemover.add(tiro);
+                    mapa.getMapEntidades()[e.getY()][e.getX()] = new Vazio(e.getX(), e.getY());
                     break;
                 }
             }

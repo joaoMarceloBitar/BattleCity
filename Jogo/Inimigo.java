@@ -1,10 +1,22 @@
-public class Jogador extends Personagem {
+package Jogo;
+
+public class Inimigo extends Personagem implements Atingivel {
     int dano;
 
-    public Jogador(int horiz, int verti, Direcao ultimaDirecao) {
+    public Inimigo(int horiz,int verti, Direcao ultimaDirecao){
         super(horiz, verti, ultimaDirecao);
-        this.vida = 3;
-        this.dano = 1;
+        this.vida=1;
+        this.dano=1;
+    }
+
+    public Direcao direcaoInimigo;
+
+    @Override
+    public char getChar() {
+        return 'I';
+    }
+    public char getCharAtingido() {
+        return '_';
     }
 
     /*
@@ -43,7 +55,7 @@ public class Jogador extends Personagem {
 
         return verti;
     }
-        
+
     public Disparo atirar(Direcao direcaoTiro){
 
         int xTiro = this.proximoX(direcaoTiro);
@@ -53,13 +65,5 @@ public class Jogador extends Personagem {
         return tiro;
     }
     */
-
-    public boolean podeQuebrar() {
-        return false;
-    }
-
-    @Override
-    public char getChar() {
-        return 'P';
-    }
+    
 }

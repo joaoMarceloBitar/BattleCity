@@ -1,3 +1,5 @@
+package Jogo;
+
 public abstract class Entidade {
     int vida;
     boolean destrutivo;
@@ -13,9 +15,10 @@ public abstract class Entidade {
     }
 
 
-    
+    public boolean isVivo() { return this.vivo; }
+    public void setVivo(boolean morreu) { this.vivo = false; }
     public int getX() { return horiz; }
     public int getY() { return verti; }
-
+    
     public abstract char getChar();
 }

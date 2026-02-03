@@ -1,3 +1,5 @@
+package Jogo;
+
 public enum Direcao {
     CIMA,
     BAIXO,

@@ -1,3 +1,5 @@
+package Jogo;
+
 public class BlocoTijolo extends Entidade implements Atingivel {
 
     public BlocoTijolo(int horiz, int verti) {

@@ -1,3 +1,5 @@
+package Jogo;
+
 public class Base extends Entidade implements Atingivel {
 
     public Base(int horiz, int verti, boolean destrutivo) {

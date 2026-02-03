@@ -1,24 +1,36 @@
-public class Inimigo extends Personagem implements Atingivel {
-    int dano;
+package Jogo;
 
-    public Inimigo(int horiz,int verti, Direcao ultimaDirecao){
-        super(horiz, verti, ultimaDirecao);
-        this.vida=1;
-        this.dano=1;
+public abstract class Personagem extends Entidade {
+    protected Direcao ultimaDirecao;
+    protected int oldX;
+    protected int oldY;
+
+    public Personagem(int horiz, int verti, Direcao direcao) {
+        super(horiz, verti, true);
+        this.oldX = horiz;
+        this.oldY = verti;
+        this.ultimaDirecao = direcao;
     }
 
-    public Direcao direcaoInimigo;
-
-    @Override
-    public char getChar() {
-        return 'I';
-    }
-    public char getCharAtingido() {
-        return '_';
+    public void setDirecao(Direcao d) {
+        this.ultimaDirecao = d;
     }
 
-    /*
+    public Disparo disparar(Direcao ultimaDirecao, int x, int y) {
+        return new Disparo(ultimaDirecao,x,y);
+    }
+
+    public Direcao getUltimaDirecao() {
+        return ultimaDirecao;
+    }
+
+    public int getOldX() { return oldX; }
+    public int getOldY() { return oldY; }
+
     public void andar(Direcao direcao) {
+        this.oldX = this.horiz;
+        this.oldY = this.verti;
+
         if (direcao == Direcao.CIMA) {
             this.verti--;
             ultimaDirecao = Direcao.CIMA;
@@ -62,6 +74,4 @@ public class Inimigo extends Personagem implements Atingivel {
         Disparo tiro = new Disparo(ultimaDirecao,xTiro,yTiro);
         return tiro;
     }
-    */
-    
 }
