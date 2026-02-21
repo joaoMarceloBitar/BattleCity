@@ -11,6 +11,10 @@ public class GameLoop implements Runnable {
         this.jogo = jogo;
     }
 
+    public void parar() {
+        this.running = false;
+    }
+
     @Override
     public void run() {
         final int FPS = 30;

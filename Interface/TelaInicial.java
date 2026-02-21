@@ -10,6 +10,7 @@ public class TelaInicial extends JFrame {
 
     public TelaInicial(Jogo jogo) {
         this.jogo = jogo;
+        jogo.getSoundPlayer().tocar("/Som/Sons/Skank - Saideira versão 8 bit [kPrPaCw1UIU].wav");
         setSize(1000, 700);
         setTitle("De Bar em War");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -89,7 +90,7 @@ public class TelaInicial extends JFrame {
 
         JButton jogarBotao = criarBotao("Jogar", "/Imagens/jogarBotao.png");
         JButton escolheMapaBotao = criarBotao("Escolher Mapa", "/Imagens/mapasBotao.png");
-        JButton rankingBotao = criarBotao("Ranking", "/Imagens/mapasBotao.png");
+        JButton rankingBotao = criarBotao("Ranking", "/Imagens/rankingBotao.png");
         JButton sairBotao = criarBotao("Sair", "/Imagens/sairBotao.png");
 
         grid.gridy = 0;

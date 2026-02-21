@@ -2,6 +2,8 @@ package Jogo;
 
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
 public class InimigoAI implements Runnable {
 
     private boolean running = true;
@@ -9,6 +11,10 @@ public class InimigoAI implements Runnable {
 
     public InimigoAI(Jogo jogo) {
         this.jogo = jogo;
+    }
+
+    public void parar() {
+        this.running = false;
     }
 
     @Override
@@ -23,6 +29,12 @@ public class InimigoAI implements Runnable {
                     Direcao d = i.decidirMovimento();
                     synchronized (jogo) {
                         jogo.acaoInimigo(d, i, jogo.getPlayer());
+
+                        if (jogo.getTela() != null) {
+                            SwingUtilities.invokeLater(() -> {
+                                jogo.getTela().atualizarTela();
+                            });
+                        }
                     }
                 }
             }

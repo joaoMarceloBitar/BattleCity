@@ -5,10 +5,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
-import Jogo.Ranking;
-import javax.swing.JLayeredPane;
-import java.awt.Font;
-import java.awt.Insets;
 
 public class TelaJogo extends JFrame implements JogoListener {
     final private Jogo jogo;
@@ -22,26 +18,32 @@ public class TelaJogo extends JFrame implements JogoListener {
     private ImageIcon iconBase;
     private ImageIcon iconTijolo;
     private ImageIcon iconAco;
+    private InimigoAI threadIA;
+    private ProjetilThread threadProjetil;
+    private GameLoop threadGameLoop;
 
     public TelaJogo(Jogo jogo) {
         this.jogo = jogo;
-        jogo.getSoundPlayer().tocar("/Som/Sons/Skank - Saideira versão 8 bit [kPrPaCw1UIU].wav");
+        //jogo.getSoundPlayer().tocar("/Som/Sons/Skank - Saideira versão 8 bit [kPrPaCw1UIU].wav");
         this.jogo.getMapa().renderizaMapa();
         carregarIcones();
         jogo.setTela(this);
         jogo.setListener(this);
 
-        Thread threadGameLoop = new Thread(new GameLoop(jogo));
-        threadGameLoop.setDaemon(true);
-        threadGameLoop.start();
+        this.threadGameLoop = new GameLoop(jogo);
+        Thread tGame = new Thread(threadGameLoop);
+        tGame.setDaemon(true);
+        tGame.start();
 
-        Thread threadIA = new Thread(new InimigoAI(jogo));
-        threadIA.setDaemon(true);
-        threadIA.start();
+        this.threadIA = new InimigoAI(jogo);
+        Thread tIA = new Thread(threadIA);
+        tIA.setDaemon(true);
+        tIA.start();
 
-        Thread threadProjetil = new Thread(new ProjetilThread(jogo));
-        threadProjetil.setDaemon(true);
-        threadProjetil.start();
+        this.threadProjetil = new ProjetilThread(jogo);
+        Thread tProj = new Thread(threadProjetil);
+        tProj.setDaemon(true);
+        tProj.start();
 
         setTitle("De Bar em War");
         setSize(1000, 700);
@@ -69,6 +71,18 @@ public class TelaJogo extends JFrame implements JogoListener {
         renderizaMapa();
 
         setVisible(true);
+    }
+
+    public void pararTudo() {
+        if (threadIA != null) {
+            threadIA.parar();
+        }
+        if (threadProjetil != null) {
+            threadProjetil.parar();
+        }
+        if (threadGameLoop != null) {
+            threadGameLoop.parar();
+        }
     }
 
     private void carregarIcones() {
@@ -183,11 +197,27 @@ public class TelaJogo extends JFrame implements JogoListener {
         gbc.gridy = 2;
         overlay.add(menuBtn, gbc);
 
+        JButton continuarBtn = new JButton("CONTINUAR");
+        menuBtn.setFont(new Font("Arial", Font.BOLD, 15));
+        gbc.gridy = 3;
+        overlay.add(continuarBtn, gbc);
+
         menuBtn.addActionListener(e -> {
             dispose();
+            this.jogo.setNivelAtual(1);
             SwingUtilities.invokeLater(() -> {
-                Jogo novoJogo = new Jogo();
-                new TelaInicial(novoJogo).setVisible(true);
+            //    Jogo novoJogo = new Jogo();
+                new TelaInicial(this.jogo).setVisible(true);
+            });
+        });
+
+        continuarBtn.addActionListener(e -> {
+            pararTudo();
+            dispose();
+            int proxNivel = this.jogo.getNivelAtual() + 1;
+            this.jogo.setNivelAtual(proxNivel);
+            SwingUtilities.invokeLater(() -> {
+                new TelaJogo(this.jogo).setVisible(true);
             });
         });
 

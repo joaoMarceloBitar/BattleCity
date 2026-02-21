@@ -7,9 +7,13 @@ import java.net.URL;
 public class SoundPlayer {
 
     private Clip clipAtual;
+    private String caminhoAtual;
 
     // para a música atual e toca uma nova em loop
     public void tocar(String caminho) {
+        if (clipAtual != null && clipAtual.isRunning() && caminho.equals(caminhoAtual)) {
+            return;
+        }
         parar();
 
         try {
@@ -22,6 +26,7 @@ public class SoundPlayer {
             AudioInputStream audio = AudioSystem.getAudioInputStream(url);
             clipAtual = AudioSystem.getClip();
             clipAtual.open(audio);
+            this.caminhoAtual = caminho;
             clipAtual.loop(Clip.LOOP_CONTINUOUSLY); // toca em loop infinito
             clipAtual.start();
 
@@ -36,6 +41,7 @@ public class SoundPlayer {
             clipAtual.close();
         }
         clipAtual = null;
+        caminhoAtual = null;
     }
 
     public boolean estaTocando() {

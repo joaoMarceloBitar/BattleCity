@@ -1,3 +1,10 @@
 JOAO;500
 JOAO;400
 joao;300
+luisa;200
+luisa;200
+luisa;200
+luisa;200
+luisa;200
+Jogador;200
+Jogador;200

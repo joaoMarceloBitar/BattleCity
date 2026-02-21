@@ -15,6 +15,7 @@ public class Jogo {
     List<Entidade> InimigosParaRemover = new ArrayList<>();
     private List<Disparo> disparos = new ArrayList<>();
     private Mapa mapa;
+    private int nivelAtual = 1;
     private int mapaEscolhido = -1;
     private TelaJogo tela;
     private boolean pausado = false;
@@ -95,6 +96,14 @@ public class Jogo {
         return this.pausado;
     }
 
+    public void setNivelAtual(int nivelAtual) {
+        this.nivelAtual = nivelAtual;
+    }
+
+    public int getNivelAtual() {
+        return this.nivelAtual;
+    }
+
     public synchronized void esperarSePausado() {
         while (pausado) {
             try {
@@ -105,25 +114,44 @@ public class Jogo {
         }
     }
 
+    public void encerraThreads() {
+        this.pausado = false;
+        this.jogoEncerrado = true;
+    }
+
     public void iniciar() {
-        int min = 1;
-        int max = 3;
         int numMapa;
 
         if (mapaEscolhido != -1) {
             numMapa = mapaEscolhido;
         } else {
-            numMapa = min + (int) (Math.random() * ((max - min) + 1));
-            entidades.clear();
+            numMapa = Math.min(nivelAtual, 3);
+        //    numMapa = min + (int) (Math.random() * ((max - min) + 1));
+        //    entidades.clear();
         }
         mapa = new Mapa("Mapas/mapa" + numMapa + ".txt");
         this.mapa.renderizaMapa();
 
-        this.player = geraJogador();
         this.entidades.clear();
+        this.disparos.clear();
+        this.disparosParaRemover.clear();
+        this.InimigosParaRemover.clear();
+        this.jogoEncerrado = false;
+
+        this.player = geraJogador();
+        this.player.vivo = true;
+
         this.entidades.add(player);
         this.entidades.add(geraInimigo());
         this.entidades.add(geraInimigo());
+
+        if (this.tela != null) {
+            this.tela.carregaCenario();
+            this.tela.renderizaMapa();
+        }
+
+        posicionaEntidades();
+        retomar();
     }
 
     public static int menu() {
@@ -177,6 +205,7 @@ public class Jogo {
 
     public void executarCiclo() {
         moveDisparos();
+        posicionaEntidades();
 
         for (Entidade e : entidades) {
             if (e instanceof Inimigo && e.isVivo() == true) {
