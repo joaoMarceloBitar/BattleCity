@@ -6,6 +6,7 @@ import java.util.Scanner;
 import javax.swing.SwingUtilities;
 import Interface.TelaJogo;
 import Som.SoundPlayer;
+import PowerUps.*;
 
 public class Jogo {
     private static final Scanner scan = new Scanner(System.in);
@@ -15,12 +16,14 @@ public class Jogo {
     List<Entidade> InimigosParaRemover = new ArrayList<>();
     private List<Disparo> disparos = new ArrayList<>();
     private Mapa mapa;
+    private int nivelAtual = 1;
     private int mapaEscolhido = -1;
     private TelaJogo tela;
     private boolean pausado = false;
     private SoundPlayer soundPlayer = new SoundPlayer();
     private JogoListener listener;
     boolean jogoEncerrado = false;
+    private boolean inimigosCongelados = false;
 
     public void setListener(JogoListener listener) {
         this.listener = listener;
@@ -66,9 +69,18 @@ public class Jogo {
         this.mapaEscolhido = id;
     }
 
+    public void setInimigosCongelados(boolean congelado) {
+        this.inimigosCongelados = congelado;
+    }
+
+    public boolean isInimigosCongelados() {
+        return this.inimigosCongelados;
+    }
+
     public synchronized void update() {
         verificaEntidades(this.player);
         verificaColisaoCorporal();
+        verificaColeta(this.player);
         verificaVitoria(entidades, this.player);
     }
 
@@ -95,6 +107,14 @@ public class Jogo {
         return this.pausado;
     }
 
+    public void setNivelAtual(int nivelAtual) {
+        this.nivelAtual = nivelAtual;
+    }
+
+    public int getNivelAtual() {
+        return this.nivelAtual;
+    }
+
     public synchronized void esperarSePausado() {
         while (pausado) {
             try {
@@ -105,25 +125,44 @@ public class Jogo {
         }
     }
 
+    public void encerraThreads() {
+        this.pausado = false;
+        this.jogoEncerrado = true;
+    }
+
     public void iniciar() {
-        int min = 1;
-        int max = 3;
         int numMapa;
 
         if (mapaEscolhido != -1) {
             numMapa = mapaEscolhido;
         } else {
-            numMapa = min + (int) (Math.random() * ((max - min) + 1));
-            entidades.clear();
+            numMapa = Math.min(nivelAtual, 3);
+        //    numMapa = min + (int) (Math.random() * ((max - min) + 1));
+        //    entidades.clear();
         }
         mapa = new Mapa("Mapas/mapa" + numMapa + ".txt");
         this.mapa.renderizaMapa();
 
-        this.player = geraJogador();
         this.entidades.clear();
+        this.disparos.clear();
+        this.disparosParaRemover.clear();
+        this.InimigosParaRemover.clear();
+        this.jogoEncerrado = false;
+
+        this.player = geraJogador();
+        this.player.vivo = true;
+
         this.entidades.add(player);
         this.entidades.add(geraInimigo());
         this.entidades.add(geraInimigo());
+
+        if (this.tela != null) {
+            this.tela.carregaCenario();
+            this.tela.renderizaMapa();
+        }
+
+        posicionaEntidades();
+        retomar();
     }
 
     public static int menu() {
@@ -177,6 +216,7 @@ public class Jogo {
 
     public void executarCiclo() {
         moveDisparos();
+        posicionaEntidades();
 
         for (Entidade e : entidades) {
             if (e instanceof Inimigo && e.isVivo() == true) {
@@ -338,9 +378,9 @@ public class Jogo {
         if (x < 0 || x > 12 || y < 0 || y > 12)
             return false;
         Entidade alvo = mapa.mapaEntidades[y][x];
-        if (alvo instanceof Vazio)
+        if (alvo instanceof Vazio || alvo instanceof PowerUps) {
             return true;
-
+        }
         return false;
     }
 
@@ -395,7 +435,16 @@ public class Jogo {
                     }
                     if (e instanceof BlocoTijolo && e.destrutivo) {
                         e.vivo = false;
-                        mapa.getMapEntidades()[e.getY()][e.getX()] = new Vazio(e.getX(), e.getY());
+                        PowerUps novoPowerUp = PowerUps.getPowerUps(e.getX(), e.getY());
+
+                        if (novoPowerUp != null) {
+                            synchronized (entidades) {
+                                this.entidades.add(novoPowerUp);
+                            }
+                            mapa.getMapEntidades()[e.getY()][e.getX()] = novoPowerUp;
+                        } else {
+                            mapa.getMapEntidades()[e.getY()][e.getX()] = new Vazio(e.getX(), e.getY());
+                        }
                         aRemoverAgora.add(tiro);
                         break;
                     }
@@ -424,11 +473,13 @@ public class Jogo {
             if (aRemoverAgora.contains(tiro))
                 continue;
 
-            if (player.vivo && player.getX() == tiro.getX() && player.getY() == tiro.getY()) {
-                player.vida--;
-                aRemoverAgora.add(tiro);
-                System.out.println("Jogador atingido! Vida: " + player.vida);
-            }
+            if (player.vivo && player.getX() == tiro.getX() && player.getY() == tiro.getY() && !player.getInvulneravel()) {
+                if (!player.getInvulneravel()) {
+                    player.vida--;
+                    aRemoverAgora.add(tiro);
+                    System.out.println("Jogador atingido! Vida: " + player.vida);
+                }
+            } 
         }
 
         disparosParaRemover.addAll(aRemoverAgora);
@@ -468,6 +519,26 @@ public class Jogo {
             pausar();
             if (listener != null)
                 SwingUtilities.invokeLater(() -> listener.onPassarDeFase());
+        }
+    }
+
+    public void verificaColeta(Jogador player) {
+        for (Entidade e : new ArrayList<>(entidades)) {
+            if (e instanceof PowerUps && e.getX() == player.getX() && e.getY() == player.getY()) {
+                if (e instanceof Kit) {
+                    player.setVida(player.getVida() + 2);
+                    e.setVivo((false));
+                    entidades.remove(e);
+                } else if (e instanceof Capacete) {
+                    ((Capacete) e).invulneravel(this);
+                    e.setVivo(false);
+                    entidades.remove(e);
+                } else if (e instanceof Gelo) {
+                    ((Gelo) e).congela(this);
+                    e.setVivo(false);
+                    entidades.remove(e);
+                }
+            }
         }
     }
 }

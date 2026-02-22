@@ -1,5 +1,7 @@
 package Jogo;
 
+import javax.swing.SwingUtilities;
+
 public class ProjetilThread implements Runnable {
 
     private boolean running = true;
@@ -20,6 +22,9 @@ public class ProjetilThread implements Runnable {
             jogo.esperarSePausado();
             synchronized (jogo) {
                 jogo.moveDisparos();
+                if (jogo.getTela() != null) {
+                    SwingUtilities.invokeLater(() -> jogo.getTela().atualizarDisparo());
+                }
             }
             try {
                 Thread.sleep(INTERVALO_MS);
