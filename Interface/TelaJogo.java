@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
+import PowerUps.*;
 
 public class TelaJogo extends JFrame implements JogoListener {
     final private Jogo jogo;
@@ -18,6 +19,11 @@ public class TelaJogo extends JFrame implements JogoListener {
     private ImageIcon iconBase;
     private ImageIcon iconTijolo;
     private ImageIcon iconAco;
+    private ImageIcon iconGelo;
+    private ImageIcon iconGelado;
+    private ImageIcon iconCapacete;
+    private ImageIcon iconKit;
+    private ImageIcon iconEscudo;
     private InimigoAI threadIA;
     private ProjetilThread threadProjetil;
     private GameLoop threadGameLoop;
@@ -83,6 +89,10 @@ public class TelaJogo extends JFrame implements JogoListener {
         if (threadGameLoop != null) {
             threadGameLoop.parar();
         }
+        jogo.setTela(null);
+        jogo.setListener(null);
+
+        this.dispose();
     }
 
     private void carregarIcones() {
@@ -92,7 +102,11 @@ public class TelaJogo extends JFrame implements JogoListener {
         iconBase = new ImageIcon(getClass().getResource("/Imagens/base.gif"));
         iconTijolo = new ImageIcon(getClass().getResource("/Imagens/tijolo.gif"));
         iconAco = new ImageIcon(getClass().getResource("/Imagens/aco.png"));
-
+        iconCapacete = new ImageIcon(getClass().getResource("/Imagens/iconCapacete.gif"));
+        iconGelo = new ImageIcon(getClass().getResource("/Imagens/iconGelo.gif"));
+        iconKit = new ImageIcon(getClass().getResource("/Imagens/iconKit.gif"));
+        iconGelado = new ImageIcon(getClass().getResource("/Imagens/iconGelado.gif"));
+        iconEscudo = new ImageIcon(getClass().getResource("/Imagens/playerEscudo.gif"));
     }
 
     public static class Grid extends JPanel {
@@ -118,6 +132,30 @@ public class TelaJogo extends JFrame implements JogoListener {
     }
 
     public void atualizarTela() {
+        for (int i = 0; i < 13; i++) {
+            for (int j = 0; j < 13; j++) {
+                Entidade e = jogo.getMapa().getMapEntidades()[i][j];
+                if (e instanceof Vazio || e instanceof PowerUps) {
+                    grid[i][j].limpaTela();
+                }
+            }
+        }
+
+        for (Entidade e : jogo.getEntidades()) {
+            if (e.isVivo()) {
+                if (e instanceof Inimigo) {
+                    if (jogo.isInimigosCongelados()) {
+                        grid[e.getY()][e.getX()].setImagem(iconGelado);
+                    } else {
+                        grid[e.getY()][e.getX()].setImagem(iconInimigo);
+                    }
+                } 
+                else if (e instanceof Kit) grid[e.getY()][e.getX()].setImagem(iconKit);
+                else if (e instanceof Gelo) grid[e.getY()][e.getX()].setImagem(iconGelo);
+                else if (e instanceof Capacete) grid[e.getY()][e.getX()].setImagem(iconCapacete);
+            }
+        }
+
         for (Disparo d : jogo.getDisparosParaRemover()) {
             int x = d.getX(), y = d.getY();
             if (x >= 0 && x < 13 && y >= 0 && y < 13)
@@ -164,6 +202,8 @@ public class TelaJogo extends JFrame implements JogoListener {
     }
 
     private void mostrarOverlayFimDeJogo(boolean venceu) {
+        String caminhoImagem = venceu ? "/Imagens/telaVitoria.png" : "/Imagens/telaDerrota.png";
+        Image bgOverlay = new ImageIcon(getClass().getResource(caminhoImagem)).getImage();
         String nome = JOptionPane.showInputDialog(
                 this,
                 "Digite seu nome para o ranking:",
@@ -174,17 +214,31 @@ public class TelaJogo extends JFrame implements JogoListener {
 
         Ranking.salvar(nome.trim(), jogo.getPlayer().getPontos());
 
-        JPanel overlay = new JPanel(new GridBagLayout());
-        overlay.setBackground(new Color(0, 0, 0, 210));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.insets = new Insets(12, 12, 12, 12);
+        JPanel overlay = new JPanel(new GridBagLayout()) {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.drawImage(bgOverlay, 0, 0, getWidth(), getHeight(), this);
+        }
+    };
 
-        JLabel titulo = new JLabel(venceu ? "VOCÊ VENCEU!" : "GAME OVER");
-        titulo.setFont(new Font("Arial", Font.BOLD, 32));
-        titulo.setForeground(venceu ? Color.YELLOW : Color.RED);
+        overlay.setOpaque(false);
+        GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
-        overlay.add(titulo, gbc);
+        gbc.weighty = 1.0;
+        gbc.insets = new Insets(12, 12, 12, 12);
+        gbc.fill = GridBagConstraints.BOTH;
+        overlay.add(new Box.Filler(new Dimension(0,0), new Dimension(0,0), new Dimension(0,Short.MAX_VALUE)), gbc);
+
+        gbc.weighty = 0;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.SOUTH;
+
+        //JLabel titulo = new JLabel(venceu ? "VOCÊ VENCEU!" : "GAME OVER");
+        //titulo.setFont(new Font("Arial", Font.BOLD, 32));
+        //titulo.setForeground(venceu ? Color.YELLOW : Color.RED);
+        //gbc.gridy = 0;
+        //overlay.add(titulo, gbc);
 
         JLabel pts = new JLabel("Pontuação: " + jogo.getPlayer().getPontos() + " pts");
         pts.setFont(new Font("Arial", Font.PLAIN, 18));
@@ -195,12 +249,26 @@ public class TelaJogo extends JFrame implements JogoListener {
         JButton menuBtn = new JButton("VOLTAR AO MENU");
         menuBtn.setFont(new Font("Arial", Font.BOLD, 15));
         gbc.gridy = 2;
+        gbc.insets = new Insets(0, 12, 30, 12);
         overlay.add(menuBtn, gbc);
 
-        JButton continuarBtn = new JButton("CONTINUAR");
-        menuBtn.setFont(new Font("Arial", Font.BOLD, 15));
-        gbc.gridy = 3;
-        overlay.add(continuarBtn, gbc);
+        if (venceu) {
+           JButton continuarBtn = new JButton("CONTINUAR");
+            continuarBtn.setFont(new Font("Arial", Font.BOLD, 20));
+            gbc.gridy = 3;
+            gbc.insets = new Insets(0, 12, 30, 12);
+            overlay.add(continuarBtn, gbc);
+
+            continuarBtn.addActionListener(e -> {
+            pararTudo();
+            dispose();
+            int proxNivel = this.jogo.getNivelAtual() + 1;
+            this.jogo.setNivelAtual(proxNivel);
+            SwingUtilities.invokeLater(() -> {
+                new TelaJogo(this.jogo).setVisible(true);
+            });
+        });
+        }
 
         menuBtn.addActionListener(e -> {
             dispose();
@@ -208,16 +276,6 @@ public class TelaJogo extends JFrame implements JogoListener {
             SwingUtilities.invokeLater(() -> {
             //    Jogo novoJogo = new Jogo();
                 new TelaInicial(this.jogo).setVisible(true);
-            });
-        });
-
-        continuarBtn.addActionListener(e -> {
-            pararTudo();
-            dispose();
-            int proxNivel = this.jogo.getNivelAtual() + 1;
-            this.jogo.setNivelAtual(proxNivel);
-            SwingUtilities.invokeLater(() -> {
-                new TelaJogo(this.jogo).setVisible(true);
             });
         });
 
@@ -240,8 +298,22 @@ public class TelaJogo extends JFrame implements JogoListener {
     public void renderizaMapa() {
 
         for (Entidade e : jogo.getEntidades()) {
-            if (e.isVivo() == true && e instanceof Inimigo) {
-                grid[e.getY()][e.getX()].setImagem(iconInimigo);
+            if (e.isVivo()) {
+                
+                if (e instanceof Inimigo) {
+                    if (jogo.isInimigosCongelados()) {
+                        grid[e.getY()][e.getX()].setImagem(iconGelado);
+                    } else {
+                        grid[e.getY()][e.getX()].setImagem(iconInimigo);
+                    }
+                }
+                else if (e instanceof Kit) {
+                    grid[e.getY()][e.getX()].setImagem(iconKit);
+                } else if (e instanceof Gelo) {
+                    grid[e.getY()][e.getX()].setImagem(iconGelo);
+                } else if (e instanceof Capacete) {
+                    grid[e.getY()][e.getX()].setImagem(iconCapacete);
+                }
             }
         }
 

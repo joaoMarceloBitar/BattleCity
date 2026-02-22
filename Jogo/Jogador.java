@@ -5,6 +5,7 @@ public class Jogador extends Personagem {
     int vida;
     int pontos;
     String nome;
+    private boolean invulneravel = false;
 
     public Jogador(int horiz, int verti, Direcao ultimaDirecao) {
         super(horiz, verti, ultimaDirecao);
@@ -50,8 +51,16 @@ public class Jogador extends Personagem {
         return this.pontos;
     }
 
-    public void setVida() {
-        this.vida = this.vida - 1;
+    public void setVida(int vida) {
+        this.vida = vida - 1;
+    }
+
+    public void setInvulneravel(boolean estado) {
+        this.invulneravel = estado;
+    }
+
+    public boolean getInvulneravel() {
+        return this.invulneravel;
     }
 
     @Override

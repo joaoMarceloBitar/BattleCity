@@ -6,6 +6,7 @@ import java.util.Scanner;
 import javax.swing.SwingUtilities;
 import Interface.TelaJogo;
 import Som.SoundPlayer;
+import PowerUps.*;
 
 public class Jogo {
     private static final Scanner scan = new Scanner(System.in);
@@ -22,6 +23,7 @@ public class Jogo {
     private SoundPlayer soundPlayer = new SoundPlayer();
     private JogoListener listener;
     boolean jogoEncerrado = false;
+    private boolean inimigosCongelados = false;
 
     public void setListener(JogoListener listener) {
         this.listener = listener;
@@ -67,9 +69,18 @@ public class Jogo {
         this.mapaEscolhido = id;
     }
 
+    public void setInimigosCongelados(boolean congelado) {
+        this.inimigosCongelados = congelado;
+    }
+
+    public boolean isInimigosCongelados() {
+        return this.inimigosCongelados;
+    }
+
     public synchronized void update() {
         verificaEntidades(this.player);
         verificaColisaoCorporal();
+        verificaColeta(this.player);
         verificaVitoria(entidades, this.player);
     }
 
@@ -367,9 +378,9 @@ public class Jogo {
         if (x < 0 || x > 12 || y < 0 || y > 12)
             return false;
         Entidade alvo = mapa.mapaEntidades[y][x];
-        if (alvo instanceof Vazio)
+        if (alvo instanceof Vazio || alvo instanceof PowerUps) {
             return true;
-
+        }
         return false;
     }
 
@@ -424,7 +435,16 @@ public class Jogo {
                     }
                     if (e instanceof BlocoTijolo && e.destrutivo) {
                         e.vivo = false;
-                        mapa.getMapEntidades()[e.getY()][e.getX()] = new Vazio(e.getX(), e.getY());
+                        PowerUps novoPowerUp = PowerUps.getPowerUps(e.getX(), e.getY());
+
+                        if (novoPowerUp != null) {
+                            synchronized (entidades) {
+                                this.entidades.add(novoPowerUp);
+                            }
+                            mapa.getMapEntidades()[e.getY()][e.getX()] = novoPowerUp;
+                        } else {
+                            mapa.getMapEntidades()[e.getY()][e.getX()] = new Vazio(e.getX(), e.getY());
+                        }
                         aRemoverAgora.add(tiro);
                         break;
                     }
@@ -453,11 +473,13 @@ public class Jogo {
             if (aRemoverAgora.contains(tiro))
                 continue;
 
-            if (player.vivo && player.getX() == tiro.getX() && player.getY() == tiro.getY()) {
-                player.vida--;
-                aRemoverAgora.add(tiro);
-                System.out.println("Jogador atingido! Vida: " + player.vida);
-            }
+            if (player.vivo && player.getX() == tiro.getX() && player.getY() == tiro.getY() && !player.getInvulneravel()) {
+                if (!player.getInvulneravel()) {
+                    player.vida--;
+                    aRemoverAgora.add(tiro);
+                    System.out.println("Jogador atingido! Vida: " + player.vida);
+                }
+            } 
         }
 
         disparosParaRemover.addAll(aRemoverAgora);
@@ -497,6 +519,26 @@ public class Jogo {
             pausar();
             if (listener != null)
                 SwingUtilities.invokeLater(() -> listener.onPassarDeFase());
+        }
+    }
+
+    public void verificaColeta(Jogador player) {
+        for (Entidade e : new ArrayList<>(entidades)) {
+            if (e instanceof PowerUps && e.getX() == player.getX() && e.getY() == player.getY()) {
+                if (e instanceof Kit) {
+                    player.setVida(player.getVida() + 2);
+                    e.setVivo((false));
+                    entidades.remove(e);
+                } else if (e instanceof Capacete) {
+                    ((Capacete) e).invulneravel(this);
+                    e.setVivo(false);
+                    entidades.remove(e);
+                } else if (e instanceof Gelo) {
+                    ((Gelo) e).congela(this);
+                    e.setVivo(false);
+                    entidades.remove(e);
+                }
+            }
         }
     }
 }

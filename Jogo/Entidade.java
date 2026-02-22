@@ -3,7 +3,7 @@ package Jogo;
 public abstract class Entidade {
     int vida;
     boolean destrutivo;
-    boolean vivo;
+    public boolean vivo;
     int horiz;
     int verti;
 

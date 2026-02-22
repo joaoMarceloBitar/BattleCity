@@ -22,20 +22,26 @@ public class InimigoAI implements Runnable {
         while (running) {
             jogo.esperarSePausado();
 
-            List<Inimigo> inimigos = jogo.getInimigos();
+            if (!jogo.isInimigosCongelados()) {
+                List<Inimigo> inimigos = jogo.getInimigos();
 
-            for (Inimigo i : inimigos) {
-                if (i.isVivo()) {
-                    Direcao d = i.decidirMovimento();
-                    synchronized (jogo) {
-                        jogo.acaoInimigo(d, i, jogo.getPlayer());
+                for (Inimigo i : inimigos) {
+                    if (i.isVivo()) {
+                        Direcao d = i.decidirMovimento();
+                        synchronized (jogo) {
+                            jogo.acaoInimigo(d, i, jogo.getPlayer());
 
-                        if (jogo.getTela() != null) {
-                            SwingUtilities.invokeLater(() -> {
-                                jogo.getTela().atualizarTela();
-                            });
+                            if (jogo.getTela() != null) {
+                                SwingUtilities.invokeLater(() -> {
+                                    jogo.getTela().atualizarTela();
+                                });
+                            }
                         }
                     }
+                } 
+            } else {
+                if (jogo.getTela() != null) {
+                    SwingUtilities.invokeLater(() -> jogo.getTela().atualizarTela());
                 }
             }
 
