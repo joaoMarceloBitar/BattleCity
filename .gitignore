@@ -1,0 +1,46 @@
+# =========================
+# Arquivos compilados Java
+# =========================
+*.class
+
+# =========================
+# Build
+# =========================
+/bin/
+/build/
+/out/
+/target/
+
+# =========================
+# IDEs
+# =========================
+
+# IntelliJ
+.idea/
+*.iml
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
+
+# =========================
+# Sistema Operacional
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Arquivos de execução / runtime
+# =========================
+ranking.txt
+*.log
+*.tmp
+
+# =========================
+# Arquivos temporários
+# =========================
+*~

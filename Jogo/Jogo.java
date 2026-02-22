@@ -92,7 +92,7 @@ public class Jogo {
             }
         }
         return inimigos;
-    }   
+    }
 
     public synchronized void pausar() {
         this.pausado = true;
@@ -132,13 +132,16 @@ public class Jogo {
 
     public void iniciar() {
         int numMapa;
+        int pontosAnteriores = (this.player != null) ? this.player.pontos : 0;
+        int vidaAnterior = (this.player != null) ? this.player.vida : 3;
+        String nomeAnterior = (this.player != null) ? this.player.getNome() : "Jogador";
 
         if (mapaEscolhido != -1) {
             numMapa = mapaEscolhido;
         } else {
             numMapa = Math.min(nivelAtual, 3);
-        //    numMapa = min + (int) (Math.random() * ((max - min) + 1));
-        //    entidades.clear();
+            // numMapa = min + (int) (Math.random() * ((max - min) + 1));
+            // entidades.clear();
         }
         mapa = new Mapa("Mapas/mapa" + numMapa + ".txt");
         this.mapa.renderizaMapa();
@@ -150,6 +153,9 @@ public class Jogo {
         this.jogoEncerrado = false;
 
         this.player = geraJogador();
+        this.player.pontos = pontosAnteriores;
+        this.player.vida = vidaAnterior;
+        this.player.setNome(nomeAnterior);
         this.player.vivo = true;
 
         this.entidades.add(player);
@@ -473,13 +479,14 @@ public class Jogo {
             if (aRemoverAgora.contains(tiro))
                 continue;
 
-            if (player.vivo && player.getX() == tiro.getX() && player.getY() == tiro.getY() && !player.getInvulneravel()) {
+            if (player.vivo && player.getX() == tiro.getX() && player.getY() == tiro.getY()
+                    && !player.getInvulneravel()) {
                 if (!player.getInvulneravel()) {
                     player.vida--;
                     aRemoverAgora.add(tiro);
                     System.out.println("Jogador atingido! Vida: " + player.vida);
                 }
-            } 
+            }
         }
 
         disparosParaRemover.addAll(aRemoverAgora);
@@ -540,5 +547,14 @@ public class Jogo {
                 }
             }
         }
+    }
+
+    public void resetarPlayer() {
+        if (this.player != null) {
+            this.player.pontos = 0;
+            this.player.vida = 3;
+            this.player.setNome("Jogador");
+        }
+        this.nivelAtual = 1;
     }
 }
