@@ -1,3 +1,6 @@
 JOAO;500
 JOAO;400
 joao;300
+joao;200
+joa;200
+joa;200
