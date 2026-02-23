@@ -321,7 +321,7 @@ public class Jogo {
             int novoX = player.proximoX(comando);
             int novoY = player.proximoY(comando);
 
-            if (podeMover(novoX, novoY)) {
+            if (podeMoverPlayer(novoX, novoY)) {
                 mapa.mapaEntidades[player.getY()][player.getX()] = new Vazio(player.getX(), player.getY());
                 player.andar(comando);
             }
@@ -384,10 +384,14 @@ public class Jogo {
         if (x < 0 || x > 12 || y < 0 || y > 12)
             return false;
         Entidade alvo = mapa.mapaEntidades[y][x];
-        if (alvo instanceof Vazio || alvo instanceof PowerUps) {
-            return true;
-        }
-        return false;
+        return alvo instanceof Vazio || alvo instanceof PowerUps;
+    }
+
+    public boolean podeMoverPlayer(int x, int y) {
+        if (x < 0 || x > 12 || y < 0 || y > 12)
+            return false;
+        Entidade alvo = mapa.mapaEntidades[y][x];
+        return alvo instanceof Vazio || alvo instanceof PowerUps || alvo instanceof BlocoCaixa;
     }
 
     public void verificaColisaoCorporal() {
@@ -481,10 +485,17 @@ public class Jogo {
 
             if (player.vivo && player.getX() == tiro.getX() && player.getY() == tiro.getY()
                     && !player.getInvulneravel()) {
-                if (!player.getInvulneravel()) {
+
+                boolean emCima = mapa.mapaEntidades[player.getY()][player.getX()] instanceof BlocoCaixa
+                        || estaSobreCaixa(player);
+
+                if (!emCima && !player.getInvulneravel()) {
                     player.vida--;
                     aRemoverAgora.add(tiro);
                     System.out.println("Jogador atingido! Vida: " + player.vida);
+                } else {
+                    aRemoverAgora.add(tiro);
+                    System.out.println("Tiro bloqueado pela caixa!");
                 }
             }
         }
@@ -495,6 +506,16 @@ public class Jogo {
         InimigosParaRemover.clear();
 
         verificaColisaoCorporal();
+    }
+
+    private boolean estaSobreCaixa(Jogador player) {
+        for (Entidade e : mapa.blocos) {
+            if (e instanceof BlocoCaixa && e.vivo
+                    && e.getX() == player.getX() && e.getY() == player.getY()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void verificaVitoria(List<Entidade> elementos, Jogador player) {

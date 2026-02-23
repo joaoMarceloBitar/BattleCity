@@ -27,6 +27,11 @@ public class TelaJogo extends JFrame implements JogoListener {
     private InimigoAI threadIA;
     private ProjetilThread threadProjetil;
     private GameLoop threadGameLoop;
+    private JLabel labelVida;
+    private JLabel labelPontos;
+    private JLabel labelFase;
+    private ImageIcon iconCaixa;
+    private ImageIcon iconCaixaPlayer;
 
     public TelaJogo(Jogo jogo) {
         this.jogo = jogo;
@@ -108,6 +113,8 @@ public class TelaJogo extends JFrame implements JogoListener {
         iconKit = new ImageIcon(getClass().getResource("/Imagens/iconKit.gif"));
         iconGelado = new ImageIcon(getClass().getResource("/Imagens/iconGelado.gif"));
         iconEscudo = new ImageIcon(getClass().getResource("/Imagens/playerEscudo.gif"));
+        iconCaixa = new ImageIcon(getClass().getResource("/Imagens/caixa.png"));
+        iconCaixaPlayer = new ImageIcon(getClass().getResource("/Imagens/caixaPlayer.png"));
     }
 
     public static class Grid extends JPanel {
@@ -200,6 +207,22 @@ public class TelaJogo extends JFrame implements JogoListener {
         for (Entidade e : jogo.getMapa().getBlocos()) {
             if (e instanceof BlocoAco && e.isVivo()) {
                 grid[e.getY()][e.getX()].setImagem(iconAco);
+            }
+        }
+
+        if (jogo.getPlayer() != null) {
+            labelVida.setText("Vida: " + jogo.getPlayer().getVida());
+            labelPontos.setText("Pontos: " + jogo.getPlayer().getPontos());
+            labelFase.setText("Fase: " + jogo.getNivelAtual());
+        }
+
+        Jogador p2 = jogo.getPlayer();
+        for (Entidade e : jogo.getMapa().getBlocos()) {
+            if (e instanceof BlocoCaixa && e.isVivo()) {
+                boolean playerAqui = p2 != null && p2.isVivo()
+                        && p2.getX() == e.getX() && p2.getY() == e.getY();
+                ((BlocoCaixa) e).setPlayerCima(playerAqui);
+                grid[e.getY()][e.getX()].setImagem(playerAqui ? iconCaixaPlayer : iconCaixa);
             }
         }
     }
@@ -369,25 +392,33 @@ public class TelaJogo extends JFrame implements JogoListener {
                     grid[i][j].setImagem(iconAco);
                 } else if (e instanceof BlocoTijolo) {
                     grid[i][j].setImagem(iconTijolo);
+                } else if (e instanceof BlocoCaixa) {
+                    grid[i][j].setImagem(iconCaixa);
                 } else if (e instanceof Base) {
                     grid[i][j].setImagem(iconBase);
                 }
             }
         }
+
     }
 
     public JPanel criarPanelLateral() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
         panel.setBackground(Color.DARK_GRAY);
-        panel.setPreferredSize(new Dimension(300, 700));
+        panel.setPreferredSize(new Dimension(250, 700));
 
-        JLabel labelVida = new JLabel("Vida: " + jogo.getPlayer().getVida());
-        JLabel labelPontos = new JLabel("Pontos: " + jogo.getPlayer().getPontos());
+        labelVida = new JLabel("Vida: " + jogo.getPlayer().getVida());
+        labelPontos = new JLabel("Pontos: " + jogo.getPlayer().getPontos());
+        labelFase = new JLabel("Fase: " + jogo.getNivelAtual());
+
         labelVida.setForeground(Color.WHITE);
         labelPontos.setForeground(Color.WHITE);
+        labelFase.setForeground(Color.WHITE);
+
         panel.add(labelVida);
         panel.add(labelPontos);
+        panel.add(labelFase);
 
         return panel;
 

@@ -47,6 +47,10 @@ public class Mapa {
                         entidadeLida = new BlocoTijolo(x, y);
                         blocos.add(entidadeLida);
                         break;
+                    case 'C':
+                        entidadeLida = new BlocoCaixa(x, y);
+                        blocos.add(entidadeLida);
+                        break;
                     case '_':
                         entidadeLida = new Vazio(x, y);
                         break;
