@@ -159,14 +159,15 @@ public class TelaJogo extends JFrame implements JogoListener {
                     } else {
                         grid[e.getY()][e.getX()].setImagem(iconInimigo);
                     }
-                } else if (e instanceof Kit)
+                } else if (e instanceof PM)
+                    grid[e.getY()][e.getX()].setImagem(iconPM);
+                else if (e instanceof Kit)
                     grid[e.getY()][e.getX()].setImagem(iconKit);
                 else if (e instanceof Gelo)
                     grid[e.getY()][e.getX()].setImagem(iconGelo);
                 else if (e instanceof Capacete)
                     grid[e.getY()][e.getX()].setImagem(iconCapacete);
-                else if (e instanceof PM)
-                    grid[e.getY()][e.getX()].setImagem(iconPM);
+                
             }
         }
 
