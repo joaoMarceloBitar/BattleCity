@@ -1,6 +1,6 @@
 package PowerUps;
 
-import Jogo.Entidade;
+import Jogo.*;
 
 public class PowerUps extends Entidade {
     private boolean pegavel = true;
@@ -18,9 +18,9 @@ public class PowerUps extends Entidade {
         return this.pegavel;
     }
 
-    public static PowerUps getPowerUps (int horiz, int verti) {
+    public static PowerUps getPowerUps (int horiz, int verti, Jogo jogo) {
         PowerUps p;
-        int random = (int)(Math.random() * 4);
+        int random = (int)(Math.random() * (jogo.getNivelAtual() + 3));
 
         switch (random) {
             case 1:

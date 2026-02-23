@@ -12,6 +12,12 @@ public class Gelo extends PowerUps {
         new Thread(() -> {
             try {
                 jogo.setInimigosCongelados(true);
+
+                javax.swing.SwingUtilities.invokeLater(() -> {
+                    if (jogo.getTela() != null) {
+                        jogo.getTela().atualizarTela();
+                    }
+                });
                 Thread.sleep(3000);
 
                 jogo.setInimigosCongelados(false);

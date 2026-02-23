@@ -159,8 +159,30 @@ public class Jogo {
         this.player.vivo = true;
 
         this.entidades.add(player);
-        this.entidades.add(geraInimigo());
-        this.entidades.add(geraInimigo());
+
+        PM pm1 = new PM(5, 5, Direcao.BAIXO);
+        this.entidades.add(pm1);
+        PM pm2 = new PM(0, 0, Direcao.BAIXO);
+        this.entidades.add(pm2);
+        PM pm3 = new PM(12, 11, Direcao.BAIXO);
+        this.entidades.add(pm3);
+
+        for (int i = 0; i < 13; i++) {
+            for (int j = 0; j < 13; j++) {
+                Entidade e = mapa.getMapEntidades()[i][j];
+                if (e instanceof PM) {
+                    this.entidades.add(e);
+                    System.out.println("PM de teste adicionado forçadamente.");
+                }
+            }
+        }
+
+        for (int i = 0; i < getNivelAtual() + 2; i++) {
+            Inimigo inimigo = geraInimigo();
+            this.entidades.add(inimigo);
+        }
+        //this.entidades.add(geraInimigo());
+        //this.entidades.add(geraInimigo());
 
         if (this.tela != null) {
             this.tela.carregaCenario();
@@ -186,12 +208,16 @@ public class Jogo {
     public void gameLoop(Mapa mapa) {
 
         Jogador player = geraJogador();
-        Inimigo inimigo1 = geraInimigo();
-        Inimigo inimigo2 = geraInimigo();
+        for (int i = 0; i < getNivelAtual() + 2; i++) {
+            Inimigo inimigo = geraInimigo();
+            entidades.add(inimigo);
+        }
+        //Inimigo inimigo1 = geraInimigo();
+        //Inimigo inimigo2 = geraInimigo();
 
         entidades.add(player);
-        entidades.add(inimigo1);
-        entidades.add(inimigo2);
+        //entidades.add(inimigo1);
+        //entidades.add(inimigo2);
 
         while (true) {
             mapa.renderizaMapa();
@@ -211,12 +237,12 @@ public class Jogo {
             acaoPlayer(comando, player);
             verificaEntidades(player);
 
-            Direcao comandoInimigo1 = Direcao.randomica();
-            acaoInimigo(comandoInimigo1, inimigo1, player);
-
-            Direcao comandoInimigo2 = Direcao.randomica();
-            acaoInimigo(comandoInimigo2, inimigo2, player);
-            verificaEntidades(player);
+            for (Entidade e : entidades) {
+                if (e instanceof Inimigo && e.isVivo()) {
+                    Direcao comandoInimigo = Direcao.randomica();
+                    acaoInimigo(comandoInimigo, (Inimigo) e, player);
+                }
+            }
         }
     }
 
@@ -228,6 +254,10 @@ public class Jogo {
             if (e instanceof Inimigo && e.isVivo() == true) {
                 Direcao comandoIni = Direcao.randomica();
                 acaoInimigo(comandoIni, (Inimigo) e, this.player);
+            }
+            if (e instanceof PM && e.isVivo() == true && ((PM)e).getParado() == false) {
+                Direcao comandoPM = Direcao.randomica();
+                acaoInimigo(comandoPM, (PM) e, this.player);
             }
         }
 
@@ -445,7 +475,7 @@ public class Jogo {
                     }
                     if (e instanceof BlocoTijolo && e.destrutivo) {
                         e.vivo = false;
-                        PowerUps novoPowerUp = PowerUps.getPowerUps(e.getX(), e.getY());
+                        PowerUps novoPowerUp = PowerUps.getPowerUps(e.getX(), e.getY(), this);
 
                         if (novoPowerUp != null) {
                             synchronized (entidades) {
@@ -477,6 +507,17 @@ public class Jogo {
                     player.pontos += 100;
                     System.out.println("Inimigo destruído! +100 pontos.");
                     break;
+                } else if (e instanceof PM && ((PM)e).getParado() == true && e.vivo && e.getX() == tiro.getX() && e.getY() == tiro.getY()) {
+                    e.vivo = true;
+                    aRemoverAgora.add(tiro);
+                    ((PM)e).setParado(false);
+                    break;
+                } else if (e instanceof PM && ((PM)e).getParado() == false && e.vivo && e.getX() == tiro.getX() && e.getY() == tiro.getY()) {
+                    e.vivo = false;
+                    InimigosParaRemover.add(e);
+                    player.pontos += 100;
+                    aRemoverAgora.add(tiro);
+                    break;
                 }
             }
 
@@ -493,6 +534,8 @@ public class Jogo {
                     player.vida--;
                     aRemoverAgora.add(tiro);
                     System.out.println("Jogador atingido! Vida: " + player.vida);
+                } else if (!emCima && player.getInvulneravel()) {
+                    aRemoverAgora.add(tiro);
                 } else {
                     aRemoverAgora.add(tiro);
                     System.out.println("Tiro bloqueado pela caixa!");
@@ -564,6 +607,7 @@ public class Jogo {
                 } else if (e instanceof Gelo) {
                     ((Gelo) e).congela(this);
                     e.setVivo(false);
+                    tela.atualizarTela();
                     entidades.remove(e);
                 }
             }

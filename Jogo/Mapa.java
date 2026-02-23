@@ -54,6 +54,10 @@ public class Mapa {
                     case '_':
                         entidadeLida = new Vazio(x, y);
                         break;
+                    case 'M':
+                        entidadeLida = new PM(x, y, Direcao.BAIXO);
+                        this.mapaEntidades[y][x] = entidadeLida;
+                        break;
                     default:
                         entidadeLida = new Vazio(x, y);
                         break;

@@ -24,6 +24,7 @@ public class TelaJogo extends JFrame implements JogoListener {
     private ImageIcon iconCapacete;
     private ImageIcon iconKit;
     private ImageIcon iconEscudo;
+    private ImageIcon iconPM;
     private InimigoAI threadIA;
     private ProjetilThread threadProjetil;
     private GameLoop threadGameLoop;
@@ -115,6 +116,7 @@ public class TelaJogo extends JFrame implements JogoListener {
         iconEscudo = new ImageIcon(getClass().getResource("/Imagens/playerEscudo.gif"));
         iconCaixa = new ImageIcon(getClass().getResource("/Imagens/caixa.png"));
         iconCaixaPlayer = new ImageIcon(getClass().getResource("/Imagens/caixaPlayer.png"));
+        iconPM = new ImageIcon(getClass().getResource("/Imagens/iconPM.gif"));
     }
 
     public static class Grid extends JPanel {
@@ -163,6 +165,8 @@ public class TelaJogo extends JFrame implements JogoListener {
                     grid[e.getY()][e.getX()].setImagem(iconGelo);
                 else if (e instanceof Capacete)
                     grid[e.getY()][e.getX()].setImagem(iconCapacete);
+                else if (e instanceof PM)
+                    grid[e.getY()][e.getX()].setImagem(iconPM);
             }
         }
 
@@ -184,9 +188,12 @@ public class TelaJogo extends JFrame implements JogoListener {
         for (Entidade e : jogo.getEntidades()) {
             if (e instanceof Inimigo && e.isVivo()) {
                 int ox = ((Inimigo) e).getOldX(), oy = ((Inimigo) e).getOldY();
-                if (ox >= 0 && ox < 13 && oy >= 0 && oy < 13)
-                    grid[oy][ox].limpaTela();
-                grid[e.getY()][e.getX()].setImagem(iconInimigo);
+                
+                if (jogo.isInimigosCongelados()) {
+                    grid[e.getY()][e.getX()].setImagem(iconGelado);
+                } else {
+                    grid[e.getY()][e.getX()].setImagem(iconInimigo);
+                }
             }
         }
 
@@ -201,7 +208,11 @@ public class TelaJogo extends JFrame implements JogoListener {
 
         Jogador p = jogo.getPlayer();
         if (p != null && p.isVivo()) {
-            grid[p.getY()][p.getX()].setImagem(iconJogador);
+            if (p.getInvulneravel()) {
+                grid[p.getY()][p.getX()].setImagem(iconEscudo);
+            } else {
+                grid[p.getY()][p.getX()].setImagem(iconJogador);
+            }
         }
 
         for (Entidade e : jogo.getMapa().getBlocos()) {
@@ -339,6 +350,8 @@ public class TelaJogo extends JFrame implements JogoListener {
                     grid[e.getY()][e.getX()].setImagem(iconGelo);
                 } else if (e instanceof Capacete) {
                     grid[e.getY()][e.getX()].setImagem(iconCapacete);
+                } else if (e instanceof PM) {
+                    grid[e.getY()][e.getX()].setImagem(iconPM);
                 }
             }
         }
@@ -403,25 +416,47 @@ public class TelaJogo extends JFrame implements JogoListener {
     }
 
     public JPanel criarPanelLateral() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+        JPanel panel = new JPanel(){
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                ImageIcon img = new ImageIcon(getClass().getResource("/Imagens/lateral.png"));
+                if (img.getImage() != null) {
+                    g.drawImage(img.getImage(), 0, 0, getWidth(), getHeight(), this);
+                }
+            }   
+        };
+
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(Color.DARK_GRAY);
         panel.setPreferredSize(new Dimension(250, 700));
 
-        labelVida = new JLabel("Vida: " + jogo.getPlayer().getVida());
-        labelPontos = new JLabel("Pontos: " + jogo.getPlayer().getPontos());
-        labelFase = new JLabel("Fase: " + jogo.getNivelAtual());
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        labelVida.setForeground(Color.WHITE);
-        labelPontos.setForeground(Color.WHITE);
-        labelFase.setForeground(Color.WHITE);
+        Font fonteLabels = new Font("Monospaced", Font.BOLD, 18);
+
+        labelVida = formatarLabel("Vida: " + jogo.getPlayer().getVida(), fonteLabels);
+        labelPontos = formatarLabel("Pontos: " + jogo.getPlayer().getPontos(), fonteLabels);
+        labelFase = formatarLabel("Fase: " + jogo.getNivelAtual(), fonteLabels);
 
         panel.add(labelVida);
+        panel.add(Box.createRigidArea(new Dimension(0, 15)));
         panel.add(labelPontos);
+        panel.add(Box.createRigidArea(new Dimension(0, 15)));
         panel.add(labelFase);
 
         return panel;
 
+    }
+
+    private JLabel formatarLabel(String texto, Font fonte) {
+        JLabel label = new JLabel(texto);
+        label.setForeground(Color.YELLOW);
+        label.setFont(fonte);
+        label.setAlignmentX(Component.LEFT_ALIGNMENT); // Garante que todos alinhem à esquerda
+        return label;
     }
 
     public void teclaPressionada(KeyEvent e) {

@@ -38,7 +38,24 @@ public class InimigoAI implements Runnable {
                             }
                         }
                     }
-                } 
+                }
+                
+                synchronized (jogo.getEntidades()) {
+                    for (Entidade e : jogo.getEntidades()) {
+                        if (e instanceof PM && e.isVivo() && !((PM)e).getParado()) {
+                            Direcao d = ((PM)e).decidirMovimento(jogo.getPlayer());
+                            synchronized (jogo) {
+                                jogo.acaoInimigo(d, (PM)e, jogo.getPlayer());
+
+                                if (jogo.getTela() != null) {
+                                    SwingUtilities.invokeLater(() -> {
+                                        jogo.getTela().atualizarTela();
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
                 if (jogo.getTela() != null) {
                     SwingUtilities.invokeLater(() -> jogo.getTela().atualizarTela());

@@ -14,6 +14,12 @@ public class Capacete extends PowerUps{
             try {
                 jogo.getPlayer().setInvulneravel(true);
 
+                javax.swing.SwingUtilities.invokeLater(() -> {
+                    if (jogo.getTela() != null) {
+                        jogo.getTela().atualizarTela();
+                    }
+                });
+
                 Thread.sleep(duracao);
 
                 jogo.getPlayer().setInvulneravel(false);
